@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Create Buckets - AWS S3 Manager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="fas fa-plus-circle"></i> Create S3 Buckets</h1>
+    <a href="/user/dashboard" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
+
+{% if error %}
+    <div class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-triangle"></i> {{ error }}
+    </div>
+{% endif %}
+
+{% if keys %}
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-cog"></i> Bucket Configuration</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="/user/create-buckets">
+                        <div class="mb-4">
+                            <label for="region" class="form-label">
+                                <i class="fas fa-globe"></i> Select AWS Region
+                            </label>
+                            <select class="form-select" id="region" name="region" required>
+                                <option value="">Choose a region...</option>
+                                <optgroup label="US Regions">
+                                    <option value="us-east-1">us-east-1 (N. Virginia)</option>
+                                    <option value="us-east-2">us-east-2 (Ohio)</option>
+                                    <option value="us-west-1">us-west-1 (N. California)</option>
+                                    <option value="us-west-2">us-west-2 (Oregon)</option>
+                                </optgroup>
+                                <optgroup label="Canada">
+                                    <option value="ca-central-1">ca-central-1 (Canada Central)</option>
+                                    <option value="ca-west-1">ca-west-1 (Canada West)</option>
+                                </optgroup>
+                                <optgroup label="Europe">
+                                    <option value="eu-west-1">eu-west-1 (Ireland)</option>
+                                    <option value="eu-west-2">eu-west-2 (London)</option>
+                                    <option value="eu-west-3">eu-west-3 (Paris)</option>
+                                    <option value="eu-central-1">eu-central-1 (Frankfurt)</option>
+                                    <option value="eu-central-2">eu-central-2 (Zurich)</option>
+                                    <option value="eu-north-1">eu-north-1 (Stockholm)</option>
+                                    <option value="eu-south-1">eu-south-1 (Milan)</option>
+                                    <option value="eu-south-2">eu-south-2 (Spain)</option>
+                                </optgroup>
+                                <optgroup label="Asia Pacific">
+                                    <option value="ap-south-1">ap-south-1 (Mumbai)</option>
+                                    <option value="ap-south-2">ap-south-2 (Hyderabad)</option>
+                                    <option value="ap-southeast-1">ap-southeast-1 (Singapore)</option>
+                                    <option value="ap-southeast-2">ap-southeast-2 (Sydney)</option>
+                                    <option value="ap-southeast-3">ap-southeast-3 (Jakarta)</option>
+                                    <option value="ap-southeast-4">ap-southeast-4 (Melbourne)</option>
+                                    <option value="ap-northeast-1">ap-northeast-1 (Tokyo)</option>
+                                    <option value="ap-northeast-2">ap-northeast-2 (Seoul)</option>
+                                    <option value="ap-northeast-3">ap-northeast-3 (Osaka)</option>
+                                    <option value="ap-east-1">ap-east-1 (Hong Kong)</option>
+                                </optgroup>
+                                <optgroup label="South America">
+                                    <option value="sa-east-1">sa-east-1 (São Paulo)</option>
+                                </optgroup>
+                                <optgroup label="Middle East">
+                                    <option value="me-south-1">me-south-1 (Bahrain)</option>
+                                    <option value="me-central-1">me-central-1 (UAE)</option>
+                                </optgroup>
+                                <optgroup label="Israel">
+                                    <option value="il-central-1">il-central-1 (Tel Aviv)</option>
+                                </optgroup>
+                                <optgroup label="Africa">
+                                    <option value="af-south-1">af-south-1 (Cape Town)</option>
+                                </optgroup>
+                            </select>
+                            <div class="form-text">Choose the AWS region where you want to create your S3 buckets.</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="num_buckets" class="form-label">
+                                <i class="fas fa-hashtag"></i> Number of Buckets per AWS Key
+                            </label>
+                            <input type="number" class="form-control" id="num_buckets" name="num_buckets" min="1" max="20" value="1" required>
+                            <div class="form-text">
+                                Each of your {{ keys|length }} AWS key(s) will create this many buckets. 
+                                Total buckets: <span id="totalBuckets">{{ keys|length }}</span>
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-rocket"></i> Create Buckets
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-info-circle"></i> Your AWS Keys</h5>
+                </div>
+                <div class="card-body">
+                    <div class="small">
+                        <p class="text-muted mb-3">Buckets will be created using these AWS keys:</p>
+                        {% for key in keys %}
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-key text-primary me-2"></i>
+                                <div>
+                                    <div class="fw-bold">{{ key.name }}</div>
+                                    <div class="text-muted small">{{ key.access_key[:10] }}...</div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-lightbulb"></i> What Happens Next?</h5>
+                </div>
+                <div class="card-body">
+                    <div class="small">
+                        <ol class="ps-3">
+                            <li class="mb-2">Random bucket names will be generated</li>
+                            <li class="mb-2">Buckets will be created in your selected region</li>
+                            <li class="mb-2">Public access will be configured</li>
+                            <li class="mb-2">HTML and image files will be uploaded</li>
+                            <li class="mb-2">Public URLs will be generated</li>
+                        </ol>
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-clock"></i>
+                            <small>This process may take a few minutes depending on the number of buckets.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+        <h4>No AWS Keys Available</h4>
+        <p class="text-muted">You need AWS keys assigned to your account before you can create buckets.</p>
+        <div class="alert alert-info mt-4">
+            <i class="fas fa-info-circle"></i>
+            <strong>Contact your administrator</strong> to get AWS credentials assigned to your account.
+        </div>
+        <a href="/user/dashboard" class="btn btn-primary">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const numBucketsInput = document.getElementById('num_buckets');
+    if (numBucketsInput) {
+        numBucketsInput.addEventListener('input', function() {
+            const numBuckets = parseInt(this.value) || 0;
+            const numKeys = {% if keys %}{{ keys|length }}{% else %}0{% endif %};
+            const total = numBuckets * numKeys;
+            const totalElement = document.getElementById('totalBuckets');
+            if (totalElement) {
+                totalElement.textContent = total;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

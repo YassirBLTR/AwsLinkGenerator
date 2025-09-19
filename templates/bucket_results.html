@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+
+{% block title %}Bucket Creation Results - AWS S3 Manager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="fas fa-check-circle text-success"></i> Bucket Creation Results</h1>
+    <div>
+        <a href="/user/create-buckets" class="btn btn-outline-primary me-2">
+            <i class="fas fa-plus"></i> Create More
+        </a>
+        <a href="/user/dashboard" class="btn btn-primary">
+            <i class="fas fa-home"></i> Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Buckets Created</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ results.total_buckets_created }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-bucket fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">URLs Generated</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ results.total_urls_generated }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-link fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Region</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ results.region }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-globe fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Created On</div>
+                        <div class="h6 mb-0 font-weight-bold text-gray-800">{{ results.creation_date }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clock fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results by AWS Key -->
+{% for key_result in results.keys_results %}
+<div class="card mb-4">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-key text-primary"></i> {{ key_result.key_name }}
+            </h5>
+            <div>
+                {% if key_result.buckets_created > 0 %}
+                    <span class="badge bg-success">{{ key_result.buckets_created }} buckets created</span>
+                {% else %}
+                    <span class="badge bg-danger">No buckets created</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if key_result.errors %}
+            <div class="alert alert-danger">
+                <h6><i class="fas fa-exclamation-triangle"></i> Errors:</h6>
+                <ul class="mb-0">
+                    {% for error in key_result.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        {% if key_result.urls %}
+            <h6><i class="fas fa-link"></i> Generated URLs:</h6>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>URL</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for url_info in key_result.urls %}
+                        <tr>
+                            <td>
+                                {% if url_info.type == 'html' %}
+                                    <span class="badge bg-info">
+                                        <i class="fas fa-code"></i> HTML
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-image"></i> Image
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <code class="small">{{ url_info.url }}</code>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('{{ url_info.url }}')">
+                                    <i class="fas fa-copy"></i> Copy
+                                </button>
+                                <a href="{{ url_info.url }}" target="_blank" class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-external-link-alt"></i> Open
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+
+        {% if not key_result.urls and not key_result.errors %}
+            <div class="text-center text-muted py-3">
+                <i class="fas fa-info-circle"></i> No URLs generated for this key.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endfor %}
+
+<!-- Download Results -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0"><i class="fas fa-download"></i> Export Results</h5>
+    </div>
+    <div class="card-body">
+        <p class="text-muted">Download the complete results as a text file for your records.</p>
+        <button class="btn btn-primary" onclick="downloadResults()">
+            <i class="fas fa-download"></i> Download Results File
+        </button>
+        <button class="btn btn-outline-secondary ms-2" onclick="copyAllUrls()">
+            <i class="fas fa-copy"></i> Copy All URLs
+        </button>
+    </div>
+</div>
+
+<!-- Toast for notifications -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="copyToast" class="toast" role="alert">
+        <div class="toast-header">
+            <i class="fas fa-check-circle text-success me-2"></i>
+            <strong class="me-auto">Success</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body">
+            URL copied to clipboard!
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        showToast();
+    });
+}
+
+function copyAllUrls() {
+    const urls = [];
+    {% for key_result in results.keys_results %}
+        {% for url_info in key_result.urls %}
+            urls.push('{{ url_info.url }}');
+        {% endfor %}
+    {% endfor %}
+    
+    const allUrls = urls.join('\n');
+    navigator.clipboard.writeText(allUrls).then(function() {
+        showToast('All URLs copied to clipboard!');
+    });
+}
+
+function showToast(message = 'URL copied to clipboard!') {
+    const toastEl = document.getElementById('copyToast');
+    const toastBody = toastEl.querySelector('.toast-body');
+    toastBody.textContent = message;
+    const toast = new bootstrap.Toast(toastEl);
+    toast.show();
+}
+
+function downloadResults() {
+    const content = `Bucket Creation Results
+======================
+Date: {{ results.creation_date }}
+Region: {{ results.region }}
+Buckets Requested per Key: {{ results.num_buckets_requested }}
+Total Buckets Created: {{ results.total_buckets_created }}
+Total URLs Generated: {{ results.total_urls_generated }}
+
+{% for key_result in results.keys_results %}
+{{ key_result.key_name }}
+Buckets Created: {{ key_result.buckets_created }}
+{% if key_result.errors %}
+Errors:
+{% for error in key_result.errors %}  - {{ error }}
+{% endfor %}
+{% endif %}
+{% if key_result.urls %}
+Generated URLs:
+{% for url_info in key_result.urls %}  {{ url_info.type }}: {{ url_info.url }}
+{% endfor %}
+{% endif %}
+
+{% endfor %}`;
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'bucket_creation_results_{{ results.creation_date.replace(" ", "_").replace(":", "-") }}.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+</script>
+{% endblock %}

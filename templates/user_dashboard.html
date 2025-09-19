@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+
+{% block title %}User Dashboard - AWS S3 Manager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
+    <a href="/user/create-buckets" class="btn btn-primary">
+        <i class="fas fa-plus-circle"></i> Create Buckets
+    </a>
+</div>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">My AWS Keys</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ keys|length }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-key fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Account Status</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {% if keys|length > 0 %}
+                                Active
+                            {% else %}
+                                Pending
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        {% if keys|length > 0 %}
+                            <i class="fas fa-check-circle fa-2x text-success"></i>
+                        {% else %}
+                            <i class="fas fa-clock fa-2x text-warning"></i>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Available Regions</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">47</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-globe fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- My AWS Keys -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0"><i class="fas fa-key"></i> My AWS Keys</h5>
+    </div>
+    <div class="card-body">
+        {% if keys %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Key Name</th>
+                            <th>Access Key</th>
+                            <th>Status</th>
+                            <th>Assigned Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for key in keys %}
+                        <tr>
+                            <td>
+                                <i class="fas fa-key text-muted me-2"></i>
+                                {{ key.name }}
+                            </td>
+                            <td>
+                                <code class="small">{{ key.access_key[:10] }}...</code>
+                            </td>
+                            <td>
+                                {% if key.status == 'active' %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check-circle"></i> Active
+                                    </span>
+                                {% elif key.status == 'invalid' %}
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-times-circle"></i> Invalid
+                                    </span>
+                                {% elif key.status == 'expired' %}
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fas fa-clock"></i> Expired
+                                    </span>
+                                {% elif key.status == 'no_permissions' %}
+                                    <span class="badge bg-info text-dark">
+                                        <i class="fas fa-exclamation-triangle"></i> Limited
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary">
+                                        <i class="fas fa-question-circle"></i> Unchecked
+                                    </span>
+                                {% endif %}
+                                {% if key.last_checked %}
+                                    <small class="text-muted d-block">{{ key.last_checked.strftime('%m/%d %H:%M') }}</small>
+                                {% endif %}
+                            </td>
+                            <td>{{ key.created_at.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-outline-info" onclick="validateUserKey({{ key.id }})">
+                                    <i class="fas fa-check"></i> Check
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center text-muted py-5">
+                <i class="fas fa-key fa-3x mb-3"></i>
+                <h5>No AWS Keys Assigned</h5>
+                <p>Contact your administrator to get AWS keys assigned to your account.</p>
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Need AWS keys?</strong> Ask your administrator to assign AWS credentials to your account so you can start creating S3 buckets.
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Key Status Legend -->
+{% if keys %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0"><i class="fas fa-info-circle"></i> Key Status Guide</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="d-flex align-items-center mb-2">
+                    <span class="badge bg-success me-3">
+                        <i class="fas fa-check-circle"></i> Active
+                    </span>
+                    <span class="small">Key is valid and can create S3 buckets</span>
+                </div>
+                <div class="d-flex align-items-center mb-2">
+                    <span class="badge bg-danger me-3">
+                        <i class="fas fa-times-circle"></i> Invalid
+                    </span>
+                    <span class="small">Key credentials are incorrect or invalid</span>
+                </div>
+                <div class="d-flex align-items-center mb-2">
+                    <span class="badge bg-warning text-dark me-3">
+                        <i class="fas fa-clock"></i> Expired
+                    </span>
+                    <span class="small">Key credentials have expired</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex align-items-center mb-2">
+                    <span class="badge bg-info text-dark me-3">
+                        <i class="fas fa-exclamation-triangle"></i> Limited
+                    </span>
+                    <span class="small">Key is valid but lacks bucket creation permissions</span>
+                </div>
+                <div class="d-flex align-items-center mb-2">
+                    <span class="badge bg-secondary me-3">
+                        <i class="fas fa-question-circle"></i> Unchecked
+                    </span>
+                    <span class="small">Key hasn't been validated yet - click "Check" to test</span>
+                </div>
+            </div>
+        </div>
+        <div class="alert alert-info mt-3 mb-0">
+            <i class="fas fa-lightbulb"></i>
+            <strong>Tip:</strong> Click the "Check" button next to any key to validate its current status and permissions.
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Quick Actions -->
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-rocket"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                {% if keys %}
+                    <div class="d-grid gap-2">
+                        <a href="/user/create-buckets" class="btn btn-primary">
+                            <i class="fas fa-plus-circle"></i> Create S3 Buckets
+                        </a>
+                        <button class="btn btn-outline-info" onclick="showRegions()">
+                            <i class="fas fa-globe"></i> View Available Regions
+                        </button>
+                    </div>
+                {% else %}
+                    <div class="text-muted text-center">
+                        <i class="fas fa-lock fa-2x mb-3"></i>
+                        <p>Actions will be available once AWS keys are assigned to your account.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-info-circle"></i> Getting Started</h5>
+            </div>
+            <div class="card-body">
+                <div class="small">
+                    <div class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Account created successfully
+                    </div>
+                    <div class="mb-2">
+                        {% if keys %}
+                            <i class="fas fa-check text-success me-2"></i>
+                            AWS keys assigned ({{ keys|length }})
+                        {% else %}
+                            <i class="fas fa-clock text-warning me-2"></i>
+                            Waiting for AWS keys assignment
+                        {% endif %}
+                    </div>
+                    <div class="mb-2">
+                        {% if keys %}
+                            <i class="fas fa-arrow-right text-primary me-2"></i>
+                            Ready to create S3 buckets
+                        {% else %}
+                            <i class="fas fa-times text-muted me-2"></i>
+                            Cannot create buckets yet
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Regions Modal -->
+<div class="modal fade" id="regionsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-globe"></i> Available AWS Regions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Americas</h6>
+                        <ul class="list-unstyled small">
+                            <li><i class="fas fa-map-marker-alt text-muted me-2"></i>us-east-1 (N. Virginia)</li>
+                            <li><i class="fas fa-map-marker-alt text-muted me-2"></i>us-east-2 (Ohio)</li>
+                            <li><i class="fas fa-map-marker-alt text-muted me-2"></i>us-west-1 (N. California)</li>
+                            <li><i class="fas fa-map-marker-alt text-muted me-2"></i>us-west-2 (Oregon)</li>
+                            <li><i class="fas fa-map-marker-alt text-muted me-2"></i>ca-central-1 (Canada)</li>
+                            <li><i class="fas fa-map-marker-alt text-muted me-2"></i>sa-east-1 (São Paulo)</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Europe</h6>
+                        <ul class="list-unstyled small">
+                            <li><i class="fas fa-map-marker-alt text-muted me-2"></i>eu-west-1 (Ireland)</li>
+                            <li><i class="fas fa-map-marker-alt text-muted me-2"></i>eu-west-2 (London)</li>
+                            <li><i class="fas fa-map-marker-alt text-muted me-2"></i>eu-central-1 (Frankfurt)</li>
+                            <li><i class="fas fa-map-marker-alt text-muted me-2"></i>eu-north-1 (Stockholm)</li>
+                        </ul>
+                        
+                        <h6>Asia Pacific</h6>
+                        <ul class="list-unstyled small">
+                            <li><i class="fas fa-map-marker-alt text-muted me-2"></i>ap-southeast-1 (Singapore)</li>
+                            <li><i class="fas fa-map-marker-alt text-muted me-2"></i>ap-northeast-1 (Tokyo)</li>
+                            <li><i class="fas fa-map-marker-alt text-muted me-2"></i>ap-south-1 (Mumbai)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function showRegions() {
+    const modal = new bootstrap.Modal(document.getElementById('regionsModal'));
+    modal.show();
+}
+
+function validateUserKey(keyId) {
+    if (confirm('This will test your AWS key by attempting to create a test bucket. Continue?')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/user/keys/${keyId}/validate`;
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+{% endblock %}

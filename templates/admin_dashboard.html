@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - AWS S3 Manager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h1>
+</div>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Users</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ users|length }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total AWS Keys</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ keys|length }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-key fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Assigned Keys</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ keys|selectattr("user_id")|list|length }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-link fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Unassigned Keys</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ keys|rejectattr("user_id")|list|length }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-user-plus"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="/admin/users" class="btn btn-primary">
+                        <i class="fas fa-users"></i> Manage Users
+                    </a>
+                    <a href="/admin/keys" class="btn btn-success">
+                        <i class="fas fa-key"></i> Manage AWS Keys
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-chart-line"></i> System Overview</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="text-center">
+                            <div class="h4 text-primary">{{ users|selectattr("is_admin")|list|length }}</div>
+                            <div class="small text-muted">Admins</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center">
+                            <div class="h4 text-info">{{ users|rejectattr("is_admin")|list|length }}</div>
+                            <div class="small text-muted">Regular Users</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Users -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0"><i class="fas fa-clock"></i> Recent Users</h5>
+    </div>
+    <div class="card-body">
+        {% if users %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>AWS Keys</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users[:5] %}
+                        <tr>
+                            <td>
+                                <i class="fas fa-user text-muted me-2"></i>
+                                {{ user.username }}
+                            </td>
+                            <td>
+                                {% if user.is_admin %}
+                                    <span class="badge bg-warning text-dark">Admin</span>
+                                {% else %}
+                                    <span class="badge bg-info">User</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">{{ user.aws_keys|length }}</span>
+                            </td>
+                            <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                <a href="/admin/users" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if users|length > 5 %}
+                <div class="text-center">
+                    <a href="/admin/users" class="btn btn-outline-primary">View All Users</a>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="text-center text-muted">
+                <i class="fas fa-users fa-3x mb-3"></i>
+                <p>No users found. Create your first user to get started.</p>
+                <a href="/admin/users" class="btn btn-primary">Create User</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,805 @@
+{
+	"info": {
+		"_postman_id": "aws-s3-manager-collection",
+		"name": "AWS S3 Manager API Tests",
+		"description": "Complete test collection for FastAPI AWS S3 Manager application",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "GET Login Page",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/login",
+							"host": ["{{base_url}}"],
+							"path": ["login"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Login page loads\", function () {",
+									"    pm.expect(pm.response.code).to.eql(200);",
+									"    pm.expect(pm.response.text()).to.include(\"Sign in\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "POST Login Admin",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "admin123",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login",
+							"host": ["{{base_url}}"],
+							"path": ["login"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Admin login successful\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([302, 200]);",
+									"});",
+									"",
+									"pm.test(\"Cookie set\", function () {",
+									"    var cookies = pm.response.headers.get(\"Set-Cookie\");",
+									"    pm.expect(cookies).to.include(\"access_token\");",
+									"    ",
+									"    // Extract and save token",
+									"    if (cookies) {",
+									"        var token = cookies.split(\"access_token=\")[1].split(\";\")[0];",
+									"        pm.environment.set(\"admin_token\", token);",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "POST Login Invalid",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "invalid",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "wrong",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login",
+							"host": ["{{base_url}}"],
+							"path": ["login"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Invalid login rejected\", function () {",
+									"    pm.expect(pm.response.code).to.eql(200);",
+									"    pm.expect(pm.response.text()).to.include(\"Invalid\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "GET Logout",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/logout",
+							"host": ["{{base_url}}"],
+							"path": ["logout"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Logout successful\", function () {",
+									"    pm.expect(pm.response.code).to.eql(302);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Admin Dashboard",
+			"item": [
+				{
+					"name": "GET Admin Dashboard",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "access_token={{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/dashboard",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "dashboard"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Dashboard loads\", function () {",
+									"    pm.expect(pm.response.code).to.eql(200);",
+									"    pm.expect(pm.response.text()).to.include(\"Admin Dashboard\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "GET Admin Dashboard Unauthorized",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/dashboard",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "dashboard"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unauthorized access blocked\", function () {",
+									"    pm.expect(pm.response.code).to.eql(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "User Management",
+			"item": [
+				{
+					"name": "GET Admin Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "access_token={{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/users",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "users"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Users page loads\", function () {",
+									"    pm.expect(pm.response.code).to.eql(200);",
+									"    pm.expect(pm.response.text()).to.include(\"Manage Users\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "POST Create User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							},
+							{
+								"key": "Cookie",
+								"value": "access_token={{admin_token}}"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "testuser",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "testpass123",
+									"type": "text"
+								},
+								{
+									"key": "is_admin",
+									"value": "false",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/users/create",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "users", "create"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"User created successfully\", function () {",
+									"    pm.expect(pm.response.code).to.eql(302);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "POST Create Duplicate User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							},
+							{
+								"key": "Cookie",
+								"value": "access_token={{admin_token}}"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "testpass123",
+									"type": "text"
+								},
+								{
+									"key": "is_admin",
+									"value": "false",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/users/create",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "users", "create"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Duplicate username rejected\", function () {",
+									"    pm.expect(pm.response.code).to.eql(200);",
+									"    pm.expect(pm.response.text()).to.include(\"already exists\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "AWS Key Management",
+			"item": [
+				{
+					"name": "GET Admin Keys",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "access_token={{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/keys",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "keys"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Keys page loads\", function () {",
+									"    pm.expect(pm.response.code).to.eql(200);",
+									"    pm.expect(pm.response.text()).to.include(\"Manage AWS Keys\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "POST Create AWS Key",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							},
+							{
+								"key": "Cookie",
+								"value": "access_token={{admin_token}}"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "test-aws-key",
+									"type": "text"
+								},
+								{
+									"key": "access_key",
+									"value": "AKIATEST123456789",
+									"type": "text"
+								},
+								{
+									"key": "secret_key",
+									"value": "testSecretKey123456789abcdef",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/keys/create",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "keys", "create"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"AWS key created\", function () {",
+									"    pm.expect(pm.response.code).to.eql(302);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "POST Assign Key to User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							},
+							{
+								"key": "Cookie",
+								"value": "access_token={{admin_token}}"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "user_id",
+									"value": "2",
+									"type": "text",
+									"description": "Replace with actual user ID"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/keys/1/assign",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "keys", "1", "assign"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Key assigned successfully\", function () {",
+									"    pm.expect(pm.response.code).to.eql(302);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "POST Unassign Key",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							},
+							{
+								"key": "Cookie",
+								"value": "access_token={{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/keys/1/unassign",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "keys", "1", "unassign"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Key unassigned successfully\", function () {",
+									"    pm.expect(pm.response.code).to.eql(302);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "User Operations",
+			"item": [
+				{
+					"name": "POST Login Test User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "testuser",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "testpass123",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login",
+							"host": ["{{base_url}}"],
+							"path": ["login"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"User login successful\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([302, 200]);",
+									"});",
+									"",
+									"// Extract user token",
+									"var cookies = pm.response.headers.get(\"Set-Cookie\");",
+									"if (cookies) {",
+									"    var token = cookies.split(\"access_token=\")[1].split(\";\")[0];",
+									"    pm.environment.set(\"user_token\", token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "GET User Dashboard",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "access_token={{user_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/user/dashboard",
+							"host": ["{{base_url}}"],
+							"path": ["user", "dashboard"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"User dashboard loads\", function () {",
+									"    pm.expect(pm.response.code).to.eql(200);",
+									"    pm.expect(pm.response.text()).to.include(\"Dashboard\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "GET Create Buckets Page",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "access_token={{user_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/user/create-buckets",
+							"host": ["{{base_url}}"],
+							"path": ["user", "create-buckets"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Create buckets page loads\", function () {",
+									"    pm.expect(pm.response.code).to.eql(200);",
+									"    pm.expect(pm.response.text()).to.include(\"Create S3 Buckets\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "POST Create Buckets",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							},
+							{
+								"key": "Cookie",
+								"value": "access_token={{user_token}}"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "region",
+									"value": "us-east-1",
+									"type": "text"
+								},
+								{
+									"key": "num_buckets",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/user/create-buckets",
+							"host": ["{{base_url}}"],
+							"path": ["user", "create-buckets"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Bucket creation response\", function () {",
+									"    pm.expect(pm.response.code).to.eql(200);",
+									"    // Will show results or error based on AWS key availability",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Security Tests",
+			"item": [
+				{
+					"name": "Access Admin as User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "access_token={{user_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/users",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "users"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Access denied for regular user\", function () {",
+									"    pm.expect(pm.response.code).to.eql(403);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Access Protected Without Auth",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/user/dashboard",
+							"host": ["{{base_url}}"],
+							"path": ["user", "dashboard"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unauthenticated access blocked\", function () {",
+									"    pm.expect(pm.response.code).to.eql(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Set base URL if not already set",
+					"if (!pm.environment.get(\"base_url\")) {",
+					"    pm.environment.set(\"base_url\", \"http://localhost:8000\");",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Common test for response time",
+					"pm.test(\"Response time is acceptable\", function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(5000);",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		}
+	]
+}
