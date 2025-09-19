@@ -4,7 +4,7 @@ import string
 import os
 import datetime
 from botocore.exceptions import ClientError, NoCredentialsError, EndpointConnectionError
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 from models import AWSKey
 from fastapi import UploadFile
 from io import BytesIO
@@ -46,8 +46,8 @@ class AWSService:
             s3 = boto3.client(
                 's3',
                 region_name=region,
-                aws_access_key_id=aws_key.access_key,
-                aws_secret_access_key=aws_key.secret_key
+                aws_access_key_id=(aws_key.access_key.strip() if aws_key.access_key else aws_key.access_key),
+                aws_secret_access_key=(aws_key.secret_key.strip() if aws_key.secret_key else aws_key.secret_key)
             )
             
             response = s3.list_buckets()
@@ -72,7 +72,7 @@ class AWSService:
                 "error": str(e)
             }
 
-    def create_buckets_for_user(self, user_keys: List[AWSKey], region: str, num_buckets: int, image_file: UploadFile | None = None) -> Dict[str, Any]:
+    def create_buckets_for_user(self, user_keys: List[AWSKey], region: str, num_buckets: int, image_file: Optional[UploadFile] = None) -> Dict[str, Any]:
         """Create buckets for a user using their assigned AWS keys"""
         results = {
             "region": region,
@@ -84,8 +84,8 @@ class AWSService:
         }
 
         # Prepare uploaded image once for reuse
-        prepared_image_bytes: bytes | None = None
-        prepared_content_type: str | None = None
+        prepared_image_bytes = None  # type: Optional[bytes]
+        prepared_content_type = None  # type: Optional[str]
         if image_file is not None:
             # Read into memory once
             try:
@@ -120,8 +120,8 @@ class AWSService:
                 s3 = boto3.client(
                     's3',
                     region_name=region,
-                    aws_access_key_id=aws_key.access_key,
-                    aws_secret_access_key=aws_key.secret_key
+                    aws_access_key_id=(aws_key.access_key.strip() if aws_key.access_key else aws_key.access_key),
+                    aws_secret_access_key=(aws_key.secret_key.strip() if aws_key.secret_key else aws_key.secret_key)
                 )
 
                 # Check bucket limits
@@ -239,10 +239,13 @@ class AWSService:
         """
         try:
             # Create S3 client with provided credentials
+            # Strip any hidden whitespace to avoid InvalidAccessKeyId
+            ak = access_key.strip() if access_key else access_key
+            sk = secret_key.strip() if secret_key else secret_key
             s3_client = boto3.client(
                 's3',
-                aws_access_key_id=access_key,
-                aws_secret_access_key=secret_key,
+                aws_access_key_id=ak,
+                aws_secret_access_key=sk,
                 region_name='us-east-1'  # Default region for validation
             )
             

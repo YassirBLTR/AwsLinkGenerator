@@ -206,10 +206,15 @@ async def create_key(
         except ValueError:
             parsed_user_id = None
     
+    # Sanitize inputs: trim whitespace; normalize access key to uppercase
+    sanitized_name = name.strip() if name else name
+    sanitized_access = access_key.strip().upper() if access_key else access_key
+    sanitized_secret = secret_key.strip() if secret_key else secret_key
+
     db_key = AWSKey(
-        name=name,
-        access_key=access_key,
-        secret_key=secret_key,
+        name=sanitized_name,
+        access_key=sanitized_access,
+        secret_key=sanitized_secret,
         user_id=parsed_user_id
     )
     db.add(db_key)
@@ -240,6 +245,19 @@ async def user_dashboard(request: Request, current_user: User = Depends(get_curr
         return RedirectResponse(url="/admin/dashboard", status_code=302)
     
     user_keys = db.query(AWSKey).filter(AWSKey.user_id == current_user.id).all()
+
+    # Just-in-time re-validation to avoid stale statuses
+    aws_service = AWSService()
+    for k in user_keys:
+        try:
+            status, _ = aws_service.validate_aws_key(k.access_key, k.secret_key)
+            k.status = status
+            k.last_checked = func.now()
+        except Exception:
+            # keep previous status if validation failed unexpectedly
+            pass
+    db.commit()
+
     valid_keys = [k for k in user_keys if k.status != 'invalid']
     invalid_keys = [k for k in user_keys if k.status == 'invalid']
     return templates.TemplateResponse("user_dashboard.html", {
@@ -316,7 +334,6 @@ async def create_buckets(
             "error": "Please upload a valid image file (png, jpg, jpeg, etc.)"
         })
 
-    aws_service = AWSService()
     results = aws_service.create_buckets_for_user(valid_keys, region, num_buckets, image_file=image)
     
     return templates.TemplateResponse("bucket_results.html", {
