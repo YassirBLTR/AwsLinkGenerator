@@ -7,6 +7,7 @@ from botocore.exceptions import ClientError, NoCredentialsError, EndpointConnect
 from typing import List, Dict, Any, Tuple
 from models import AWSKey
 from fastapi import UploadFile
+from io import BytesIO
 
 class AWSService:
     def __init__(self):
@@ -82,6 +83,31 @@ class AWSService:
             "creation_date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
 
+        # Prepare uploaded image once for reuse
+        prepared_image_bytes: bytes | None = None
+        prepared_content_type: str | None = None
+        if image_file is not None:
+            # Read into memory once
+            try:
+                image_file.file.seek(0)
+            except Exception:
+                pass
+            prepared_image_bytes = image_file.file.read()
+            # Determine content type
+            prepared_content_type = image_file.content_type or None
+            if getattr(image_file, 'filename', None):
+                _, ext = os.path.splitext(image_file.filename.lower())
+                if ext == '.png':
+                    prepared_content_type = 'image/png'
+                elif ext in ('.jpg', '.jpeg', '.jpe'):
+                    prepared_content_type = 'image/jpeg'
+                elif ext == '.gif':
+                    prepared_content_type = 'image/gif'
+            else:
+                ext = ''
+            if not prepared_content_type:
+                prepared_content_type = 'application/octet-stream'
+
         for aws_key in user_keys:
             key_result = {
                 "key_name": aws_key.name,
@@ -145,20 +171,19 @@ class AWSService:
                         # Upload provided image if present
                         bucket_urls = []
 
-                        if image_file is not None:
-                            image_key = self.random_object_name()
-                            # Try to derive content type
-                            content_type = image_file.content_type or "application/octet-stream"
-                            # Reset file pointer before each upload
-                            try:
-                                image_file.file.seek(0)
-                            except Exception:
-                                pass
+                        if prepared_image_bytes is not None:
+                            # Use original extension if available for clearer URLs and better handling
+                            image_key = self.random_object_name() + (ext if 'ext' in locals() else '')
+                            buffer = BytesIO(prepared_image_bytes)
                             s3.upload_fileobj(
-                                image_file.file,
+                                buffer,
                                 bucket_name,
                                 image_key,
-                                ExtraArgs={'ACL': 'public-read', 'ContentType': content_type}
+                                ExtraArgs={
+                                    'ACL': 'public-read',
+                                    'ContentType': prepared_content_type,
+                                    'CacheControl': 'no-cache, no-store, must-revalidate'
+                                }
                             )
                             image_url = f"https://{bucket_name}.s3.{region}.amazonaws.com/{image_key}"
                             bucket_urls.append({"type": "image", "url": image_url})
