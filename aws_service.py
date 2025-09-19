@@ -6,6 +6,7 @@ import datetime
 from botocore.exceptions import ClientError, NoCredentialsError, EndpointConnectionError
 from typing import List, Dict, Any, Tuple
 from models import AWSKey
+from fastapi import UploadFile
 
 class AWSService:
     def __init__(self):
@@ -70,7 +71,7 @@ class AWSService:
                 "error": str(e)
             }
 
-    def create_buckets_for_user(self, user_keys: List[AWSKey], region: str, num_buckets: int) -> Dict[str, Any]:
+    def create_buckets_for_user(self, user_keys: List[AWSKey], region: str, num_buckets: int, image_file: UploadFile | None = None) -> Dict[str, Any]:
         """Create buckets for a user using their assigned AWS keys"""
         results = {
             "region": region,
@@ -141,26 +142,24 @@ class AWSService:
                             }
                         )
 
-                        # Upload files if they exist
-                        html_file = "index.html"
-                        image_file = "uioccvb.jpg"
-
+                        # Upload provided image if present
                         bucket_urls = []
 
-                        if os.path.exists(html_file) and os.path.exists(image_file):
-                            # Upload HTML
-                            html_key = self.random_object_name()
-                            s3.upload_file(html_file, bucket_name, html_key,
-                                        ExtraArgs={'ACL': 'public-read', 'ContentType': 'text/html'})
-                            html_url = f"https://{bucket_name}.s3.{region}.amazonaws.com/{html_key}"
-                            bucket_urls.append({"type": "html", "url": html_url})
-
-                            # Upload Image
+                        if image_file is not None:
                             image_key = self.random_object_name()
-                            ext = os.path.splitext(image_file)[1].lower()
-                            content_type = "image/png" if ext == ".png" else "image/jpeg"
-                            s3.upload_file(image_file, bucket_name, image_key,
-                                        ExtraArgs={'ACL': 'public-read', 'ContentType': content_type})
+                            # Try to derive content type
+                            content_type = image_file.content_type or "application/octet-stream"
+                            # Reset file pointer before each upload
+                            try:
+                                image_file.file.seek(0)
+                            except Exception:
+                                pass
+                            s3.upload_fileobj(
+                                image_file.file,
+                                bucket_name,
+                                image_key,
+                                ExtraArgs={'ACL': 'public-read', 'ContentType': content_type}
+                            )
                             image_url = f"https://{bucket_name}.s3.{region}.amazonaws.com/{image_key}"
                             bucket_urls.append({"type": "image", "url": image_url})
 

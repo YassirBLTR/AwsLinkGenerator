@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status, Request, Form, Cookie
+from fastapi import FastAPI, Depends, HTTPException, status, Request, Form, Cookie, UploadFile, File
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -240,10 +240,13 @@ async def user_dashboard(request: Request, current_user: User = Depends(get_curr
         return RedirectResponse(url="/admin/dashboard", status_code=302)
     
     user_keys = db.query(AWSKey).filter(AWSKey.user_id == current_user.id).all()
+    valid_keys = [k for k in user_keys if k.status != 'invalid']
+    invalid_keys = [k for k in user_keys if k.status == 'invalid']
     return templates.TemplateResponse("user_dashboard.html", {
         "request": request,
         "current_user": current_user,
-        "keys": user_keys
+        "keys": valid_keys,
+        "invalid_keys": invalid_keys
     })
 
 @app.get("/user/create-buckets", response_class=HTMLResponse)
@@ -252,6 +255,8 @@ async def create_buckets_page(request: Request, current_user: User = Depends(get
         return RedirectResponse(url="/admin/dashboard", status_code=302)
     
     user_keys = db.query(AWSKey).filter(AWSKey.user_id == current_user.id).all()
+    valid_keys = [k for k in user_keys if k.status != 'invalid']
+    invalid_keys = [k for k in user_keys if k.status == 'invalid']
     regions = [
         'us-east-1', 'us-east-2', 'us-west-1', 'us-west-2',
         'ca-central-1', 'ca-west-1',
@@ -271,7 +276,8 @@ async def create_buckets_page(request: Request, current_user: User = Depends(get
     return templates.TemplateResponse("create_buckets.html", {
         "request": request,
         "current_user": current_user,
-        "keys": user_keys,
+        "keys": valid_keys,
+        "invalid_keys": invalid_keys,
         "regions": regions
     })
 
@@ -280,6 +286,7 @@ async def create_buckets(
     request: Request,
     region: str = Form(...),
     num_buckets: int = Form(...),
+    image: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -287,17 +294,30 @@ async def create_buckets(
         return RedirectResponse(url="/admin/dashboard", status_code=302)
     
     user_keys = db.query(AWSKey).filter(AWSKey.user_id == current_user.id).all()
+    valid_keys = [k for k in user_keys if k.status != 'invalid']
+    invalid_keys = [k for k in user_keys if k.status == 'invalid']
     
-    if not user_keys:
+    if not valid_keys:
         return templates.TemplateResponse("create_buckets.html", {
             "request": request,
             "current_user": current_user,
-            "keys": user_keys,
-            "error": "No AWS keys assigned to your account"
+            "keys": valid_keys,
+            "invalid_keys": invalid_keys,
+            "error": "No valid AWS keys available (invalid keys are excluded)"
         })
     
+    # Basic validation for uploaded image content type
+    if image is None or (image.content_type is not None and not image.content_type.startswith("image/")):
+        return templates.TemplateResponse("create_buckets.html", {
+            "request": request,
+            "current_user": current_user,
+            "keys": valid_keys,
+            "invalid_keys": invalid_keys,
+            "error": "Please upload a valid image file (png, jpg, jpeg, etc.)"
+        })
+
     aws_service = AWSService()
-    results = aws_service.create_buckets_for_user(user_keys, region, num_buckets)
+    results = aws_service.create_buckets_for_user(valid_keys, region, num_buckets, image_file=image)
     
     return templates.TemplateResponse("bucket_results.html", {
         "request": request,

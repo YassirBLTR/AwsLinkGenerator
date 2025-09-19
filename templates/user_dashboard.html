@@ -71,7 +71,7 @@
     </div>
 </div>
 
-<!-- My AWS Keys -->
+<!-- My AWS Keys (valid and non-invalid) -->
 <div class="card mb-4">
     <div class="card-header">
         <h5 class="card-title mb-0"><i class="fas fa-key"></i> My AWS Keys</h5>
@@ -149,6 +149,62 @@
         {% endif %}
     </div>
 </div>
+
+<!-- Invalid Keys (listed separately) -->
+{% if invalid_keys and invalid_keys|length > 0 %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0"><i class="fas fa-exclamation-triangle"></i> Invalid Keys</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Key Name</th>
+                        <th>Access Key</th>
+                        <th>Status</th>
+                        <th>Last Checked</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for key in invalid_keys %}
+                    <tr>
+                        <td>
+                            <i class="fas fa-key text-danger me-2"></i>
+                            {{ key.name }}
+                        </td>
+                        <td><code class="small">{{ key.access_key[:10] }}...</code></td>
+                        <td>
+                            <span class="badge bg-danger">
+                                <i class="fas fa-times-circle"></i> Invalid
+                            </span>
+                        </td>
+                        <td>
+                            {% if key.last_checked %}
+                                {{ key.last_checked.strftime('%Y-%m-%d %H:%M') }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-outline-info" onclick="validateUserKey({{ key.id }})">
+                                <i class="fas fa-sync-alt"></i> Re-check
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="alert alert-warning mt-3 mb-0">
+            <i class="fas fa-info-circle"></i>
+            These keys are excluded from bucket creation until they are valid again.
+        </div>
+    </div>
+    </div>
+{% endif %}
 
 <!-- Key Status Legend -->
 {% if keys %}
