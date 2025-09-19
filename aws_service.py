@@ -86,6 +86,7 @@ class AWSService:
         # Prepare uploaded image once for reuse
         prepared_image_bytes = None  # type: Optional[bytes]
         prepared_content_type = None  # type: Optional[str]
+        prepared_file_ext = ''  # Store extension for later use
         if image_file is not None:
             # Read into memory once
             try:
@@ -93,20 +94,24 @@ class AWSService:
             except Exception:
                 pass
             prepared_image_bytes = image_file.file.read()
-            # Determine content type
+            print(f"DEBUG: Image file size: {len(prepared_image_bytes) if prepared_image_bytes else 0} bytes")
+            # Determine content type and extension
             prepared_content_type = image_file.content_type or None
             if getattr(image_file, 'filename', None):
                 _, ext = os.path.splitext(image_file.filename.lower())
+                prepared_file_ext = ext  # Store for later use
+                print(f"DEBUG: Image filename: {image_file.filename}, extension: {ext}")
                 if ext == '.png':
                     prepared_content_type = 'image/png'
                 elif ext in ('.jpg', '.jpeg', '.jpe'):
                     prepared_content_type = 'image/jpeg'
                 elif ext == '.gif':
                     prepared_content_type = 'image/gif'
-            else:
-                ext = ''
             if not prepared_content_type:
                 prepared_content_type = 'application/octet-stream'
+            print(f"DEBUG: Content type: {prepared_content_type}")
+        else:
+            print("DEBUG: No image file provided")
 
         for aws_key in user_keys:
             key_result = {
@@ -173,7 +178,8 @@ class AWSService:
 
                         if prepared_image_bytes is not None:
                             # Use original extension if available for clearer URLs and better handling
-                            image_key = self.random_object_name() + (ext if 'ext' in locals() else '')
+                            image_key = self.random_object_name() + prepared_file_ext
+                            print(f"DEBUG: Uploading image to bucket {bucket_name} with key {image_key}")
                             buffer = BytesIO(prepared_image_bytes)
                             s3.upload_fileobj(
                                 buffer,
@@ -187,6 +193,9 @@ class AWSService:
                             )
                             image_url = f"https://{bucket_name}.s3.{region}.amazonaws.com/{image_key}"
                             bucket_urls.append({"type": "image", "url": image_url})
+                            print(f"DEBUG: Generated image URL: {image_url}")
+                        else:
+                            print("DEBUG: No prepared image bytes to upload")
 
                         key_result["urls"].extend(bucket_urls)
                         key_result["buckets_created"] += 1
