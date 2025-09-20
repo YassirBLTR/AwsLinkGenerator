@@ -348,6 +348,7 @@ async def create_buckets(
             "error": f"Error processing uploaded image: {str(e)}"
         })
 
+    aws_service = AWSService()
     results = aws_service.create_buckets_for_user(valid_keys, region, num_buckets, image_file=image, image_content=image_content)
     
     return templates.TemplateResponse("bucket_results.html", {
