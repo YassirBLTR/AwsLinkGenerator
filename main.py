@@ -334,7 +334,21 @@ async def create_buckets(
             "error": "Please upload a valid image file (png, jpg, jpeg, etc.)"
         })
 
-    results = aws_service.create_buckets_for_user(valid_keys, region, num_buckets, image_file=image)
+    # Read the image file properly in the async context
+    try:
+        image_content = await image.read()
+        print(f"DEBUG: Read {len(image_content)} bytes from uploaded image in main.py")
+    except Exception as e:
+        print(f"DEBUG: Error reading image in main.py: {str(e)}")
+        return templates.TemplateResponse("create_buckets.html", {
+            "request": request,
+            "current_user": current_user,
+            "keys": valid_keys,
+            "invalid_keys": invalid_keys,
+            "error": f"Error processing uploaded image: {str(e)}"
+        })
+
+    results = aws_service.create_buckets_for_user(valid_keys, region, num_buckets, image_file=image, image_content=image_content)
     
     return templates.TemplateResponse("bucket_results.html", {
         "request": request,

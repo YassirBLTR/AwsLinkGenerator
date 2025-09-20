@@ -41,19 +41,30 @@ class AWSService:
             # For object names: simple random string
             return ''.join(random.choices(string.ascii_lowercase + string.digits, k=length))
 
-    def _prepare_image_data(self, image_file: Optional[UploadFile]) -> Tuple[Optional[bytes], str, str]:
+    def _prepare_image_data(self, image_file: Optional[UploadFile], image_content: Optional[bytes] = None) -> Tuple[Optional[bytes], str, str]:
         """Prepare uploaded image for S3 upload"""
         if image_file is None:
+            print("DEBUG: No image file provided")
             return None, '', 'application/octet-stream'
         
-        # Read image into memory
-        try:
-            image_file.file.seek(0)
-        except Exception:
-            pass
+        # Use provided image content if available, otherwise read from file
+        image_bytes = None
+        if image_content is not None:
+            image_bytes = image_content
+            print(f"DEBUG: Using provided image content: {len(image_bytes)} bytes")
+        else:
+            # Read image into memory
+            try:
+                # Ensure we're at the beginning of the file
+                image_file.file.seek(0)
+                image_bytes = image_file.file.read()
+                print(f"DEBUG: Read {len(image_bytes)} bytes from uploaded file")
+            except Exception as e:
+                print(f"DEBUG: Error reading image file: {str(e)}")
+                return None, '', 'application/octet-stream'
         
-        image_bytes = image_file.file.read()
         if not image_bytes:
+            print("DEBUG: Image file is empty after reading")
             return None, '', 'application/octet-stream'
         
         # Determine file extension and content type
@@ -100,7 +111,7 @@ class AWSService:
                 "error": str(e)
             }
 
-    def create_buckets_for_user(self, user_keys: List[AWSKey], region: str, num_buckets: int, image_file: Optional[UploadFile] = None) -> Dict[str, Any]:
+    def create_buckets_for_user(self, user_keys: List[AWSKey], region: str, num_buckets: int, image_file: Optional[UploadFile] = None, image_content: Optional[bytes] = None) -> Dict[str, Any]:
         """Create buckets for a user using their assigned AWS keys"""
         results = {
             "region": region,
@@ -112,10 +123,12 @@ class AWSService:
         }
 
         # Prepare uploaded image once for reuse across all buckets
-        image_bytes, file_ext, content_type = self._prepare_image_data(image_file)
+        image_bytes, file_ext, content_type = self._prepare_image_data(image_file, image_content)
         
         if image_bytes is None:
             print("WARNING: No valid image provided - no URLs will be generated")
+        else:
+            print(f"DEBUG: Successfully prepared image data: {len(image_bytes)} bytes, ext: {file_ext}, content_type: {content_type}")
 
         for aws_key in user_keys:
             key_result = self._process_key_buckets(aws_key, region, num_buckets, image_bytes, file_ext, content_type)
@@ -159,9 +172,15 @@ class AWSService:
                     
                     # Upload image if provided
                     if image_bytes:
+                        print(f"DEBUG: Uploading image to bucket {bucket_name}")
                         image_url = self._upload_image_to_bucket(s3, bucket_name, region, image_bytes, file_ext, content_type)
                         if image_url:
+                            print(f"DEBUG: Successfully uploaded image, URL: {image_url}")
                             key_result["urls"].append({"type": "image", "url": image_url})
+                        else:
+                            print(f"DEBUG: Failed to upload image to bucket {bucket_name}")
+                    else:
+                        print(f"DEBUG: No image bytes available for bucket {bucket_name}")
                     
                     key_result["buckets_created"] += 1
                     
