@@ -112,46 +112,94 @@
         {% endif %}
 
         {% if key_result.urls %}
-            <h6><i class="fas fa-link"></i> Generated URLs:</h6>
-            <div class="table-responsive">
-                <table class="table table-sm table-hover">
-                    <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>URL</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for url_info in key_result.urls %}
-                        <tr>
-                            <td>
-                                {% if url_info.type == 'html' %}
-                                    <span class="badge bg-info">
-                                        <i class="fas fa-code"></i> HTML
-                                    </span>
-                                {% else %}
-                                    <span class="badge bg-success">
-                                        <i class="fas fa-image"></i> Image
-                                    </span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <code class="small">{{ url_info.url }}</code>
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('{{ url_info.url }}')">
-                                    <i class="fas fa-copy"></i> Copy
-                                </button>
-                                <a href="{{ url_info.url }}" target="_blank" class="btn btn-sm btn-outline-success">
-                                    <i class="fas fa-external-link-alt"></i> Open
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <!-- Group URLs by type -->
+            {% set image_urls = [] %}
+            {% set html_urls = [] %}
+            {% for url_info in key_result.urls %}
+                {% if url_info.type == 'image' %}
+                    {% set _ = image_urls.append(url_info) %}
+                {% else %}
+                    {% set _ = html_urls.append(url_info) %}
+                {% endif %}
+            {% endfor %}
+
+            <!-- Image URLs Section -->
+            {% if image_urls %}
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6><i class="fas fa-image text-success"></i> Image URLs ({{ image_urls|length }})</h6>
+                    <button class="btn btn-sm btn-outline-success" onclick="copyGroupUrls('image', '{{ key_result.key_name }}')">
+                        <i class="fas fa-copy"></i> Copy All Images
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th width="60%">URL</th>
+                                <th width="40%">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for url_info in image_urls %}
+                            <tr>
+                                <td>
+                                    <code class="small url-text" data-type="image" data-key="{{ key_result.key_name }}">{{ url_info.url }}</code>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1" onclick="copyToClipboard('{{ url_info.url }}')">
+                                        <i class="fas fa-copy"></i> Copy
+                                    </button>
+                                    <a href="{{ url_info.url }}" target="_blank" class="btn btn-sm btn-outline-success">
+                                        <i class="fas fa-external-link-alt"></i> Open
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
+            {% endif %}
+
+            <!-- HTML URLs Section -->
+            {% if html_urls %}
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6><i class="fas fa-code text-info"></i> HTML URLs ({{ html_urls|length }})</h6>
+                    <button class="btn btn-sm btn-outline-info" onclick="copyGroupUrls('html', '{{ key_result.key_name }}')">
+                        <i class="fas fa-copy"></i> Copy All HTML
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th width="60%">URL</th>
+                                <th width="40%">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for url_info in html_urls %}
+                            <tr>
+                                <td>
+                                    <code class="small url-text" data-type="html" data-key="{{ key_result.key_name }}">{{ url_info.url }}</code>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1" onclick="copyToClipboard('{{ url_info.url }}')">
+                                        <i class="fas fa-copy"></i> Copy
+                                    </button>
+                                    <a href="{{ url_info.url }}" target="_blank" class="btn btn-sm btn-outline-success">
+                                        <i class="fas fa-external-link-alt"></i> Open
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
         {% endif %}
 
         {% if not key_result.urls and not key_result.errors %}
@@ -169,13 +217,27 @@
         <h5 class="card-title mb-0"><i class="fas fa-download"></i> Export Results</h5>
     </div>
     <div class="card-body">
-        <p class="text-muted">Download the complete results as a text file for your records.</p>
-        <button class="btn btn-primary" onclick="downloadResults()">
-            <i class="fas fa-download"></i> Download Results File
-        </button>
-        <button class="btn btn-outline-secondary ms-2" onclick="copyAllUrls()">
-            <i class="fas fa-copy"></i> Copy All URLs
-        </button>
+        <p class="text-muted">Download or copy your results in different formats.</p>
+        <div class="row">
+            <div class="col-md-6">
+                <h6><i class="fas fa-download"></i> Download Options</h6>
+                <button class="btn btn-primary mb-2 w-100" onclick="downloadResults()">
+                    <i class="fas fa-download"></i> Download Complete Results
+                </button>
+            </div>
+            <div class="col-md-6">
+                <h6><i class="fas fa-copy"></i> Copy Options</h6>
+                <button class="btn btn-outline-success mb-2 w-100" onclick="copyAllImageUrls()">
+                    <i class="fas fa-image"></i> Copy All Image URLs
+                </button>
+                <button class="btn btn-outline-info mb-2 w-100" onclick="copyAllHtmlUrls()">
+                    <i class="fas fa-code"></i> Copy All HTML URLs
+                </button>
+                <button class="btn btn-outline-secondary mb-2 w-100" onclick="copyAllUrls()">
+                    <i class="fas fa-copy"></i> Copy All URLs
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -203,29 +265,94 @@ function copyToClipboard(text) {
 }
 
 function copyAllUrls() {
-    const urls = [];
-    {% for key_result in results.keys_results %}
-        {% for url_info in key_result.urls %}
-            urls.push('{{ url_info.url }}');
-        {% endfor %}
-    {% endfor %}
+    const urlElements = document.querySelectorAll('.url-text');
+    const urls = Array.from(urlElements).map(el => el.textContent);
     
     const allUrls = urls.join('\n');
     navigator.clipboard.writeText(allUrls).then(function() {
-        showToast('All URLs copied to clipboard!');
+        showToast(`All ${urls.length} URLs copied to clipboard!`);
+    }).catch(function(err) {
+        console.error('Failed to copy URLs: ', err);
+        showToast('Failed to copy URLs', 'error');
     });
 }
 
-function showToast(message = 'URL copied to clipboard!') {
+function copyAllImageUrls() {
+    const imageUrlElements = document.querySelectorAll('.url-text[data-type="image"]');
+    const imageUrls = Array.from(imageUrlElements).map(el => el.textContent);
+    
+    if (imageUrls.length === 0) {
+        showToast('No image URLs found!', 'warning');
+        return;
+    }
+    
+    const allImageUrls = imageUrls.join('\n');
+    navigator.clipboard.writeText(allImageUrls).then(function() {
+        showToast(`${imageUrls.length} image URLs copied to clipboard!`);
+    }).catch(function(err) {
+        console.error('Failed to copy image URLs: ', err);
+        showToast('Failed to copy image URLs', 'error');
+    });
+}
+
+function copyAllHtmlUrls() {
+    const htmlUrlElements = document.querySelectorAll('.url-text[data-type="html"]');
+    const htmlUrls = Array.from(htmlUrlElements).map(el => el.textContent);
+    
+    if (htmlUrls.length === 0) {
+        showToast('No HTML URLs found!', 'warning');
+        return;
+    }
+    
+    const allHtmlUrls = htmlUrls.join('\n');
+    navigator.clipboard.writeText(allHtmlUrls).then(function() {
+        showToast(`${htmlUrls.length} HTML URLs copied to clipboard!`);
+    }).catch(function(err) {
+        console.error('Failed to copy HTML URLs: ', err);
+        showToast('Failed to copy HTML URLs', 'error');
+    });
+}
+
+function copyGroupUrls(type, keyName) {
+    const urlElements = document.querySelectorAll(`.url-text[data-type="${type}"][data-key="${keyName}"]`);
+    const urls = Array.from(urlElements).map(el => el.textContent);
+    
+    if (urls.length === 0) {
+        showToast(`No ${type} URLs found for ${keyName}!`, 'warning');
+        return;
+    }
+    
+    const allUrls = urls.join('\n');
+    navigator.clipboard.writeText(allUrls).then(function() {
+        showToast(`${urls.length} ${type} URLs from ${keyName} copied!`);
+    }).catch(function(err) {
+        console.error(`Failed to copy ${type} URLs: `, err);
+        showToast(`Failed to copy ${type} URLs`, 'error');
+    });
+}
+
+function showToast(message = 'URL copied to clipboard!', type = 'success') {
     const toastEl = document.getElementById('copyToast');
     const toastBody = toastEl.querySelector('.toast-body');
+    const toastHeader = toastEl.querySelector('.toast-header i');
+    
     toastBody.textContent = message;
+    
+    // Update icon and color based on type
+    if (type === 'error') {
+        toastHeader.className = 'fas fa-exclamation-circle text-danger me-2';
+    } else if (type === 'warning') {
+        toastHeader.className = 'fas fa-exclamation-triangle text-warning me-2';
+    } else {
+        toastHeader.className = 'fas fa-check-circle text-success me-2';
+    }
+    
     const toast = new bootstrap.Toast(toastEl);
     toast.show();
 }
 
 function downloadResults() {
-    const content = `Bucket Creation Results
+    let content = `Bucket Creation Results
 ======================
 Date: {{ results.creation_date }}
 Region: {{ results.region }}
@@ -233,21 +360,55 @@ Buckets Requested per Key: {{ results.num_buckets_requested }}
 Total Buckets Created: {{ results.total_buckets_created }}
 Total URLs Generated: {{ results.total_urls_generated }}
 
-{% for key_result in results.keys_results %}
-{{ key_result.key_name }}
-Buckets Created: {{ key_result.buckets_created }}
-{% if key_result.errors %}
-Errors:
-{% for error in key_result.errors %}  - {{ error }}
-{% endfor %}
-{% endif %}
-{% if key_result.urls %}
-Generated URLs:
-{% for url_info in key_result.urls %}  {{ url_info.type }}: {{ url_info.url }}
-{% endfor %}
-{% endif %}
+`;
 
-{% endfor %}`;
+    {% for key_result in results.keys_results %}
+    content += `{{ key_result.key_name }}
+Buckets Created: {{ key_result.buckets_created }}
+`;
+    
+    {% if key_result.errors %}
+    content += `Errors:
+`;
+    {% for error in key_result.errors %}
+    content += `  - {{ error }}
+`;
+    {% endfor %}
+    {% endif %}
+    
+    {% if key_result.urls %}
+    // Group URLs by type for better organization
+    const imageUrls = [];
+    const htmlUrls = [];
+    
+    {% for url_info in key_result.urls %}
+    {% if url_info.type == 'image' %}
+    imageUrls.push('{{ url_info.url }}');
+    {% else %}
+    htmlUrls.push('{{ url_info.url }}');
+    {% endif %}
+    {% endfor %}
+    
+    if (imageUrls.length > 0) {
+        content += `
+Image URLs:
+`;
+        imageUrls.forEach(url => content += `  ${url}
+`);
+    }
+    
+    if (htmlUrls.length > 0) {
+        content += `
+HTML URLs:
+`;
+        htmlUrls.forEach(url => content += `  ${url}
+`);
+    }
+    {% endif %}
+    
+    content += `
+`;
+    {% endfor %}
 
     const blob = new Blob([content], { type: 'text/plain' });
     const url = window.URL.createObjectURL(blob);
@@ -258,6 +419,8 @@ Generated URLs:
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
+    
+    showToast('Results file downloaded successfully!');
 }
 </script>
 {% endblock %}
