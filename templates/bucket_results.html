@@ -363,14 +363,15 @@ Total URLs Generated: {{ results.total_urls_generated }}
 
 `;
 
-    // Get all key sections
-    const keyCards = document.querySelectorAll('.card');
+    // Get all AWS key result cards (skip summary cards and export card)
+    const keyCards = document.querySelectorAll('.card.mb-4');
     
     keyCards.forEach(card => {
-        const keyTitle = card.querySelector('.card-title');
-        if (!keyTitle || !keyTitle.textContent.includes('fa-key')) return;
+        const keyIcon = card.querySelector('.fa-key');
+        if (!keyIcon) return; // Skip cards without key icon (summary cards, export card)
         
-        const keyName = keyTitle.textContent.trim();
+        const keyTitle = card.querySelector('.card-title');
+        const keyName = keyTitle ? keyTitle.textContent.replace('🔑', '').trim() : 'Unknown Key';
         const badge = card.querySelector('.badge');
         const bucketsCreated = badge ? badge.textContent : '0 buckets created';
         
@@ -392,6 +393,7 @@ ${bucketsCreated}
         
         // Get Image URLs
         const imageUrls = card.querySelectorAll('.url-text[data-type="image"]');
+        console.log(`Found ${imageUrls.length} image URLs for ${keyName}`);
         if (imageUrls.length > 0) {
             content += `
 Image URLs:
@@ -404,6 +406,7 @@ Image URLs:
         
         // Get HTML URLs
         const htmlUrls = card.querySelectorAll('.url-text[data-type="html"]');
+        console.log(`Found ${htmlUrls.length} HTML URLs for ${keyName}`);
         if (htmlUrls.length > 0) {
             content += `
 HTML URLs:
@@ -412,6 +415,22 @@ HTML URLs:
                 content += `  ${urlEl.textContent}
 `;
             });
+        }
+        
+        // If no URLs found, let's check what's in the card
+        if (imageUrls.length === 0 && htmlUrls.length === 0) {
+            console.log('No URLs found, checking card content:', card.innerHTML);
+            const allUrls = card.querySelectorAll('.url-text');
+            console.log(`Found ${allUrls.length} total URL elements`);
+            if (allUrls.length > 0) {
+                content += `
+All URLs:
+`;
+                allUrls.forEach(urlEl => {
+                    content += `  ${urlEl.textContent} (type: ${urlEl.getAttribute('data-type')})
+`;
+                });
+            }
         }
         
         content += `
