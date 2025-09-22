@@ -34,11 +34,11 @@ class AWSService:
     def _generate_random_name(self, length: int = 30, prefix: str = '') -> str:
         """Generate random name for buckets/objects"""
         if prefix:
-            # For bucket names: format like 'prefix-random-random'
-            parts = [prefix]
-            for _ in range(2):
-                parts.append(''.join(random.choices(string.ascii_lowercase + string.digits, k=6)))
-            return '-'.join(parts)
+            # For bucket names: shorter format (min 4, max 8 chars)
+            # Generate random length between 4-8 characters
+            name_length = random.randint(4, 8)
+            # Use only lowercase letters and digits (AWS bucket naming rules)
+            return ''.join(random.choices(string.ascii_lowercase + string.digits, k=name_length))
         else:
             # For object names: simple random string
             return ''.join(random.choices(string.ascii_lowercase + string.digits, k=length))
