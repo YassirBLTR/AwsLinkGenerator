@@ -183,13 +183,13 @@ class AWSService:
                             print(f"DEBUG: Successfully uploaded image, URL: {image_url}")
                             key_result["urls"].append({"type": "image", "url": image_url})
                             
-                            # Also create an HTML file that displays the image
-                            html_url = self._create_html_file(s3, bucket_name, region, image_url)
+                            # Also upload the index.html file from directory
+                            html_url = self._upload_html_file(s3, bucket_name, region)
                             if html_url:
-                                print(f"DEBUG: Successfully created HTML file, URL: {html_url}")
+                                print(f"DEBUG: Successfully uploaded HTML file, URL: {html_url}")
                                 key_result["urls"].append({"type": "html", "url": html_url})
                             else:
-                                print(f"WARNING: Failed to create HTML file for bucket {bucket_name}")
+                                print(f"WARNING: Failed to upload HTML file for bucket {bucket_name}")
                         else:
                             print(f"ERROR: Failed to upload image to bucket {bucket_name}")
                             key_result["errors"].append(f"Failed to upload image to bucket {bucket_name}")
@@ -325,85 +325,24 @@ class AWSService:
             print(f"ERROR: Full traceback: {traceback.format_exc()}")
             return None
 
-    def _create_html_file(self, s3, bucket_name: str, region: str, image_url: str) -> Optional[str]:
-        """Create an HTML file that displays the uploaded image"""
+    def _upload_html_file(self, s3, bucket_name: str, region: str) -> Optional[str]:
+        """Upload the index.html file from the project directory"""
         try:
             html_key = self._generate_random_name(length=30) + ".html"
+            html_file_path = "index.html"
             
-            # Create HTML content that displays the image
-            html_content = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Display</title>
-    <style>
-        body {{
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }}
-        .container {{
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            max-width: 800px;
-            text-align: center;
-        }}
-        .image-container {{
-            margin: 20px 0;
-        }}
-        img {{
-            max-width: 100%;
-            height: auto;
-            border-radius: 10px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-        }}
-        .info {{
-            color: #666;
-            font-size: 14px;
-            margin-top: 20px;
-        }}
-        .url {{
-            background: #f5f5f5;
-            padding: 10px;
-            border-radius: 5px;
-            font-family: monospace;
-            font-size: 12px;
-            word-break: break-all;
-            margin: 10px 0;
-        }}
-        h1 {{
-            color: #333;
-            margin-bottom: 10px;
-        }}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🖼️ Image Display</h1>
-        <div class="image-container">
-            <img src="{image_url}" alt="Uploaded Image" />
-        </div>
-        <div class="info">
-            <p><strong>Image URL:</strong></p>
-            <div class="url">{image_url}</div>
-            <p><strong>Generated:</strong> {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
-            <p><strong>Bucket:</strong> {bucket_name}</p>
-            <p><strong>Region:</strong> {region}</p>
-        </div>
-    </div>
-</body>
-</html>"""
+            print(f"DEBUG: Uploading HTML file {html_file_path} as {html_key} to bucket {bucket_name}")
             
-            print(f"DEBUG: Creating HTML file {html_key} in bucket {bucket_name}")
+            # Check if index.html exists
+            if not os.path.exists(html_file_path):
+                print(f"ERROR: HTML file {html_file_path} not found in project directory")
+                return None
+            
+            # Read the HTML file content
+            with open(html_file_path, 'r', encoding='utf-8') as f:
+                html_content = f.read()
+            
+            print(f"DEBUG: Read {len(html_content)} characters from {html_file_path}")
             
             # Upload HTML file
             try:
@@ -437,7 +376,7 @@ class AWSService:
             return html_url
             
         except Exception as e:
-            print(f"ERROR: Failed to create HTML file in {bucket_name}: {str(e)}")
+            print(f"ERROR: Failed to upload HTML file to {bucket_name}: {str(e)}")
             import traceback
             print(f"ERROR: Full traceback: {traceback.format_exc()}")
             return None
