@@ -14,7 +14,7 @@ from typing import Optional, List
 import uvicorn
 
 # Force immediate output flushing for debugging
-sys.stdout.reconfigure(line_buffering=True)
+# sys.stdout.reconfigure(line_buffering=True)
 
 from database import get_db, engine
 from models import Base, User, AWSKey
