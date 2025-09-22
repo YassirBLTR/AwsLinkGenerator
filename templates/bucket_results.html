@@ -352,6 +352,7 @@ function showToast(message = 'URL copied to clipboard!', type = 'success') {
 }
 
 function downloadResults() {
+    // Build content from DOM elements to avoid template mixing issues
     let content = `Bucket Creation Results
 ======================
 Date: {{ results.creation_date }}
@@ -362,59 +363,72 @@ Total URLs Generated: {{ results.total_urls_generated }}
 
 `;
 
-    {% for key_result in results.keys_results %}
-    content += `{{ key_result.key_name }}
-Buckets Created: {{ key_result.buckets_created }}
+    // Get all key sections
+    const keyCards = document.querySelectorAll('.card');
+    
+    keyCards.forEach(card => {
+        const keyTitle = card.querySelector('.card-title');
+        if (!keyTitle || !keyTitle.textContent.includes('fa-key')) return;
+        
+        const keyName = keyTitle.textContent.trim();
+        const badge = card.querySelector('.badge');
+        const bucketsCreated = badge ? badge.textContent : '0 buckets created';
+        
+        content += `${keyName}
+${bucketsCreated}
 `;
-    
-    {% if key_result.errors %}
-    content += `Errors:
+        
+        // Check for errors
+        const errorAlert = card.querySelector('.alert-danger');
+        if (errorAlert) {
+            content += `Errors:
 `;
-    {% for error in key_result.errors %}
-    content += `  - {{ error }}
+            const errorItems = errorAlert.querySelectorAll('li');
+            errorItems.forEach(item => {
+                content += `  - ${item.textContent}
 `;
-    {% endfor %}
-    {% endif %}
-    
-    {% if key_result.urls %}
-    // Group URLs by type for better organization
-    const imageUrls = [];
-    const htmlUrls = [];
-    
-    {% for url_info in key_result.urls %}
-    {% if url_info.type == 'image' %}
-    imageUrls.push('{{ url_info.url }}');
-    {% else %}
-    htmlUrls.push('{{ url_info.url }}');
-    {% endif %}
-    {% endfor %}
-    
-    if (imageUrls.length > 0) {
-        content += `
+            });
+        }
+        
+        // Get Image URLs
+        const imageUrls = card.querySelectorAll('.url-text[data-type="image"]');
+        if (imageUrls.length > 0) {
+            content += `
 Image URLs:
 `;
-        imageUrls.forEach(url => content += `  ${url}
-`);
-    }
-    
-    if (htmlUrls.length > 0) {
-        content += `
+            imageUrls.forEach(urlEl => {
+                content += `  ${urlEl.textContent}
+`;
+            });
+        }
+        
+        // Get HTML URLs
+        const htmlUrls = card.querySelectorAll('.url-text[data-type="html"]');
+        if (htmlUrls.length > 0) {
+            content += `
 HTML URLs:
 `;
-        htmlUrls.forEach(url => content += `  ${url}
-`);
-    }
-    {% endif %}
-    
-    content += `
+            htmlUrls.forEach(urlEl => {
+                content += `  ${urlEl.textContent}
 `;
-    {% endfor %}
+            });
+        }
+        
+        content += `
+`;
+    });
 
+    // Create and download file
     const blob = new Blob([content], { type: 'text/plain' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'bucket_creation_results_{{ results.creation_date.replace(" ", "_").replace(":", "-") }}.txt';
+    
+    // Create filename with current date/time
+    const now = new Date();
+    const timestamp = now.toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    a.download = `bucket_creation_results_${timestamp}.txt`;
+    
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
