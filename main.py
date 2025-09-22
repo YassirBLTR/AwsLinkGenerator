@@ -9,8 +9,12 @@ from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta, timezone
 import os
+import sys
 from typing import Optional, List
 import uvicorn
+
+# Force immediate output flushing for debugging
+sys.stdout.reconfigure(line_buffering=True)
 
 from database import get_db, engine
 from models import Base, User, AWSKey
@@ -308,12 +312,19 @@ async def create_buckets(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    print(f"DEBUG MAIN: Starting bucket creation for user {current_user.username}")
+    print(f"DEBUG MAIN: Region: {region}, Num buckets: {num_buckets}")
+    print(f"DEBUG MAIN: Image filename: {image.filename if image else 'None'}")
+    print(f"DEBUG MAIN: Image content type: {image.content_type if image else 'None'}")
+    
     if current_user.is_admin:
         return RedirectResponse(url="/admin/dashboard", status_code=302)
     
     user_keys = db.query(AWSKey).filter(AWSKey.user_id == current_user.id).all()
     valid_keys = [k for k in user_keys if k.status != 'invalid']
     invalid_keys = [k for k in user_keys if k.status == 'invalid']
+    
+    print(f"DEBUG MAIN: Found {len(user_keys)} total keys, {len(valid_keys)} valid keys")
     
     if not valid_keys:
         return templates.TemplateResponse("create_buckets.html", {
@@ -337,9 +348,9 @@ async def create_buckets(
     # Read the image file properly in the async context
     try:
         image_content = await image.read()
-        print(f"DEBUG: Read {len(image_content)} bytes from uploaded image in main.py")
+        print(f"DEBUG MAIN: Read {len(image_content)} bytes from uploaded image in main.py")
     except Exception as e:
-        print(f"DEBUG: Error reading image in main.py: {str(e)}")
+        print(f"ERROR MAIN: Error reading image in main.py: {str(e)}")
         return templates.TemplateResponse("create_buckets.html", {
             "request": request,
             "current_user": current_user,
@@ -348,8 +359,12 @@ async def create_buckets(
             "error": f"Error processing uploaded image: {str(e)}"
         })
 
+    print(f"DEBUG MAIN: About to call AWS service with {len(valid_keys)} keys")
     aws_service = AWSService()
     results = aws_service.create_buckets_for_user(valid_keys, region, num_buckets, image_file=image, image_content=image_content)
+    print(f"DEBUG MAIN: AWS service returned: {results}")
+    print(f"DEBUG MAIN: Total buckets created: {results.get('total_buckets_created', 0)}")
+    print(f"DEBUG MAIN: Total URLs generated: {results.get('total_urls_generated', 0)}")
     
     return templates.TemplateResponse("bucket_results.html", {
         "request": request,
