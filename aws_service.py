@@ -174,14 +174,20 @@ class AWSService:
                     # Upload image if provided
                     if image_bytes:
                         print(f"DEBUG: Uploading image to bucket {bucket_name}")
+                        print(f"DEBUG: Image bytes length: {len(image_bytes)}")
+                        print(f"DEBUG: File extension: {file_ext}")
+                        print(f"DEBUG: Content type: {content_type}")
+                        
                         image_url = self._upload_image_to_bucket(s3, bucket_name, region, image_bytes, file_ext, content_type)
                         if image_url:
                             print(f"DEBUG: Successfully uploaded image, URL: {image_url}")
                             key_result["urls"].append({"type": "image", "url": image_url})
                         else:
-                            print(f"DEBUG: Failed to upload image to bucket {bucket_name}")
+                            print(f"ERROR: Failed to upload image to bucket {bucket_name}")
+                            key_result["errors"].append(f"Failed to upload image to bucket {bucket_name}")
                     else:
-                        print(f"DEBUG: No image bytes available for bucket {bucket_name}")
+                        print(f"WARNING: No image bytes available for bucket {bucket_name}")
+                        key_result["errors"].append("No image data provided for upload")
                     
                     key_result["buckets_created"] += 1
                     
@@ -195,73 +201,120 @@ class AWSService:
 
     def _create_and_configure_bucket(self, s3, bucket_name: str, region: str):
         """Create bucket and configure public access settings"""
-        # Create bucket
-        if region == 'us-east-1':
-            s3.create_bucket(Bucket=bucket_name)
-        else:
-            s3.create_bucket(
-                Bucket=bucket_name,
-                CreateBucketConfiguration={'LocationConstraint': region}
-            )
+        try:
+            print(f"DEBUG: Creating bucket {bucket_name} in region {region}")
+            
+            # Create bucket
+            if region == 'us-east-1':
+                s3.create_bucket(Bucket=bucket_name)
+            else:
+                s3.create_bucket(
+                    Bucket=bucket_name,
+                    CreateBucketConfiguration={'LocationConstraint': region}
+                )
+            print(f"DEBUG: Bucket {bucket_name} created successfully")
 
-        # Configure public access - Allow public read access for objects
-        s3.put_public_access_block(
-            Bucket=bucket_name,
-            PublicAccessBlockConfiguration={
-                'BlockPublicAcls': False,
-                'IgnorePublicAcls': False,
-                'BlockPublicPolicy': False,  # Allow public policies
-                'RestrictPublicBuckets': False  # Allow public bucket access
-            }
-        )
+            # Configure public access - Allow public read access for objects
+            try:
+                s3.put_public_access_block(
+                    Bucket=bucket_name,
+                    PublicAccessBlockConfiguration={
+                        'BlockPublicAcls': False,
+                        'IgnorePublicAcls': False,
+                        'BlockPublicPolicy': False,  # Allow public policies
+                        'RestrictPublicBuckets': False  # Allow public bucket access
+                    }
+                )
+                print(f"DEBUG: Public access block configured for {bucket_name}")
+            except Exception as e:
+                print(f"WARNING: Failed to configure public access block for {bucket_name}: {str(e)}")
 
-        s3.put_bucket_ownership_controls(
-            Bucket=bucket_name,
-            OwnershipControls={
-                'Rules': [{'ObjectOwnership': 'BucketOwnerPreferred'}]
-            }
-        )
-        
-        # Add bucket policy to allow public read access
-        bucket_policy = {
-            "Version": "2012-10-17",
-            "Statement": [
-                {
-                    "Sid": "PublicReadGetObject",
-                    "Effect": "Allow",
-                    "Principal": "*",
-                    "Action": "s3:GetObject",
-                    "Resource": f"arn:aws:s3:::{bucket_name}/*"
+            # Configure bucket ownership
+            try:
+                s3.put_bucket_ownership_controls(
+                    Bucket=bucket_name,
+                    OwnershipControls={
+                        'Rules': [{'ObjectOwnership': 'BucketOwnerPreferred'}]
+                    }
+                )
+                print(f"DEBUG: Bucket ownership configured for {bucket_name}")
+            except Exception as e:
+                print(f"WARNING: Failed to configure bucket ownership for {bucket_name}: {str(e)}")
+            
+            # Add bucket policy to allow public read access
+            try:
+                bucket_policy = {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Sid": "PublicReadGetObject",
+                            "Effect": "Allow",
+                            "Principal": "*",
+                            "Action": "s3:GetObject",
+                            "Resource": f"arn:aws:s3:::{bucket_name}/*"
+                        }
+                    ]
                 }
-            ]
-        }
-        
-        s3.put_bucket_policy(
-            Bucket=bucket_name,
-            Policy=json.dumps(bucket_policy)
-        )
+                
+                s3.put_bucket_policy(
+                    Bucket=bucket_name,
+                    Policy=json.dumps(bucket_policy)
+                )
+                print(f"DEBUG: Bucket policy configured for {bucket_name}")
+            except Exception as e:
+                print(f"WARNING: Failed to configure bucket policy for {bucket_name}: {str(e)}")
+                print(f"WARNING: URLs may not be publicly accessible")
+                
+        except Exception as e:
+            print(f"ERROR: Failed to create/configure bucket {bucket_name}: {str(e)}")
+            raise
 
     def _upload_image_to_bucket(self, s3, bucket_name: str, region: str, 
                               image_bytes: bytes, file_ext: str, content_type: str) -> Optional[str]:
         """Upload image to S3 bucket and return public URL"""
         try:
             object_key = self._generate_random_name(length=30) + file_ext
+            print(f"DEBUG: Attempting to upload image to bucket {bucket_name}")
+            print(f"DEBUG: Object key: {object_key}")
+            print(f"DEBUG: Content type: {content_type}")
+            print(f"DEBUG: Image size: {len(image_bytes)} bytes")
             
-            s3.upload_fileobj(
-                BytesIO(image_bytes),
-                bucket_name,
-                object_key,
-                ExtraArgs={
-                    'ACL': 'public-read',
-                    'ContentType': content_type,
-                    'CacheControl': 'no-cache, no-store, must-revalidate'
-                }
-            )
+            # Try uploading with public-read ACL
+            try:
+                s3.upload_fileobj(
+                    BytesIO(image_bytes),
+                    bucket_name,
+                    object_key,
+                    ExtraArgs={
+                        'ACL': 'public-read',
+                        'ContentType': content_type,
+                        'CacheControl': 'no-cache, no-store, must-revalidate'
+                    }
+                )
+                print(f"DEBUG: Successfully uploaded with public-read ACL")
+            except Exception as acl_error:
+                print(f"DEBUG: Failed with public-read ACL: {str(acl_error)}")
+                # Try without ACL (bucket policy should handle public access)
+                s3.upload_fileobj(
+                    BytesIO(image_bytes),
+                    bucket_name,
+                    object_key,
+                    ExtraArgs={
+                        'ContentType': content_type,
+                        'CacheControl': 'no-cache, no-store, must-revalidate'
+                    }
+                )
+                print(f"DEBUG: Successfully uploaded without ACL")
             
-            return f"https://{bucket_name}.s3.{region}.amazonaws.com/{object_key}"
+            url = f"https://{bucket_name}.s3.{region}.amazonaws.com/{object_key}"
+            print(f"DEBUG: Generated URL: {url}")
+            return url
             
         except Exception as e:
             print(f"ERROR: Failed to upload image to {bucket_name}: {str(e)}")
+            print(f"ERROR: Exception type: {type(e).__name__}")
+            import traceback
+            print(f"ERROR: Full traceback: {traceback.format_exc()}")
             return None
 
 
