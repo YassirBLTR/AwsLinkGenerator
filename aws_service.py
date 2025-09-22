@@ -3,6 +3,7 @@ import random
 import string
 import os
 import datetime
+import json
 from botocore.exceptions import ClientError, NoCredentialsError, EndpointConnectionError
 from typing import List, Dict, Any, Tuple, Optional
 from models import AWSKey
@@ -203,14 +204,14 @@ class AWSService:
                 CreateBucketConfiguration={'LocationConstraint': region}
             )
 
-        # Configure public access
+        # Configure public access - Allow public read access for objects
         s3.put_public_access_block(
             Bucket=bucket_name,
             PublicAccessBlockConfiguration={
                 'BlockPublicAcls': False,
                 'IgnorePublicAcls': False,
-                'BlockPublicPolicy': True,
-                'RestrictPublicBuckets': True
+                'BlockPublicPolicy': False,  # Allow public policies
+                'RestrictPublicBuckets': False  # Allow public bucket access
             }
         )
 
@@ -219,6 +220,25 @@ class AWSService:
             OwnershipControls={
                 'Rules': [{'ObjectOwnership': 'BucketOwnerPreferred'}]
             }
+        )
+        
+        # Add bucket policy to allow public read access
+        bucket_policy = {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "PublicReadGetObject",
+                    "Effect": "Allow",
+                    "Principal": "*",
+                    "Action": "s3:GetObject",
+                    "Resource": f"arn:aws:s3:::{bucket_name}/*"
+                }
+            ]
+        }
+        
+        s3.put_bucket_policy(
+            Bucket=bucket_name,
+            Policy=json.dumps(bucket_policy)
         )
 
     def _upload_image_to_bucket(self, s3, bucket_name: str, region: str, 
