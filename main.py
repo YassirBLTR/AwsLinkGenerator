@@ -246,8 +246,14 @@ async def assign_key(
     if not key:
         raise HTTPException(status_code=404, detail="Key not found")
     
-    key.user_id = user_id
-    db.commit()
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Check if already assigned
+    if user not in key.users:
+        key.users.append(user)
+        db.commit()
     
     return RedirectResponse(url="/admin/keys", status_code=302)
 
@@ -257,7 +263,8 @@ async def user_dashboard(request: Request, current_user: User = Depends(get_curr
     if current_user.is_admin:
         return RedirectResponse(url="/admin/dashboard", status_code=302)
     
-    user_keys = db.query(AWSKey).filter(AWSKey.user_id == current_user.id).all()
+    # Get keys assigned to this user through many-to-many relationship
+    user_keys = current_user.aws_keys
 
     # Just-in-time re-validation to avoid stale statuses
     aws_service = AWSService()
@@ -285,7 +292,7 @@ async def create_buckets_page(request: Request, current_user: User = Depends(get
     if current_user.is_admin:
         return RedirectResponse(url="/admin/dashboard", status_code=302)
     
-    user_keys = db.query(AWSKey).filter(AWSKey.user_id == current_user.id).all()
+    user_keys = current_user.aws_keys
     valid_keys = [k for k in user_keys if k.status != 'invalid']
     invalid_keys = [k for k in user_keys if k.status == 'invalid']
     regions = [
@@ -329,7 +336,7 @@ async def create_buckets(
     if current_user.is_admin:
         return RedirectResponse(url="/admin/dashboard", status_code=302)
     
-    user_keys = db.query(AWSKey).filter(AWSKey.user_id == current_user.id).all()
+    user_keys = current_user.aws_keys
     valid_keys = [k for k in user_keys if k.status != 'invalid']
     invalid_keys = [k for k in user_keys if k.status == 'invalid']
     
@@ -414,8 +421,30 @@ async def delete_key(
     db.commit()
     return RedirectResponse(url="/admin/keys", status_code=302)
 
-@app.post("/admin/keys/{key_id}/unassign")
-async def unassign_key(
+@app.post("/admin/keys/{key_id}/unassign/{user_id}")
+async def unassign_key_from_user(
+    key_id: int,
+    user_id: int,
+    current_user: User = Depends(get_admin_user),
+    db: Session = Depends(get_db)
+):
+    key = db.query(AWSKey).filter(AWSKey.id == key_id).first()
+    if not key:
+        raise HTTPException(status_code=404, detail="Key not found")
+    
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Remove user from key's users
+    if user in key.users:
+        key.users.remove(user)
+        db.commit()
+    
+    return RedirectResponse(url="/admin/keys", status_code=302)
+
+@app.post("/admin/keys/{key_id}/unassign-all")
+async def unassign_key_from_all(
     key_id: int,
     current_user: User = Depends(get_admin_user),
     db: Session = Depends(get_db)
@@ -424,7 +453,8 @@ async def unassign_key(
     if not key:
         raise HTTPException(status_code=404, detail="Key not found")
     
-    key.user_id = None
+    # Remove all users from this key
+    key.users.clear()
     db.commit()
     return RedirectResponse(url="/admin/keys", status_code=302)
 
@@ -455,11 +485,8 @@ async def validate_key_user(
     db: Session = Depends(get_db)
 ):
     # Users can only validate their own assigned keys
-    key = db.query(AWSKey).filter(
-        AWSKey.id == key_id,
-        AWSKey.user_id == current_user.id
-    ).first()
-    if not key:
+    key = db.query(AWSKey).filter(AWSKey.id == key_id).first()
+    if not key or key not in current_user.aws_keys:
         raise HTTPException(status_code=404, detail="Key not found or not assigned to you")
     
     aws_service = AWSService()
@@ -468,6 +495,23 @@ async def validate_key_user(
     # Update key status and last_checked timestamp
     key.status = status
     key.last_checked = func.now()
+    db.commit()
+    
+    return RedirectResponse(url="/user/dashboard", status_code=302)
+
+@app.post("/user/keys/{key_id}/unassign")
+async def user_unassign_key(
+    key_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    # Users can unassign themselves from keys
+    key = db.query(AWSKey).filter(AWSKey.id == key_id).first()
+    if not key or key not in current_user.aws_keys:
+        raise HTTPException(status_code=404, detail="Key not found or not assigned to you")
+    
+    # Remove current user from key's users
+    key.users.remove(current_user)
     db.commit()
     
     return RedirectResponse(url="/user/dashboard", status_code=302)

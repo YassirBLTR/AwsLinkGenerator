@@ -104,10 +104,23 @@
                                 {% endif %}
                             </td>
                             <td>
-                                {% if key.user %}
-                                    <span class="badge bg-success">
-                                        <i class="fas fa-user"></i> {{ key.user.username }}
-                                    </span>
+                                {% if key.users %}
+                                    <div class="d-flex flex-wrap gap-1">
+                                        {% for user in key.users %}
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge bg-success me-1">
+                                                    <i class="fas fa-user"></i> {{ user.username }}
+                                                </span>
+                                                <button class="btn btn-sm btn-outline-danger p-0" 
+                                                        style="width: 20px; height: 20px; font-size: 10px;"
+                                                        onclick="unassignUserFromKey({{ key.id }}, {{ user.id }}, '{{ user.username }}', '{{ key.name }}')"
+                                                        title="Remove {{ user.username }} from {{ key.name }}">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    <small class="text-muted">{{ key.users|length }} user(s) assigned</small>
                                 {% else %}
                                     <span class="badge bg-warning text-dark">
                                         <i class="fas fa-exclamation-triangle"></i> Unassigned
@@ -119,13 +132,12 @@
                                 <button type="button" class="btn btn-sm btn-outline-info me-1" onclick="refreshStats({{ key.id }})">
                                     <i class="fas fa-sync"></i> Refresh
                                 </button>
-                                {% if not key.user %}
-                                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#assignKeyModal{{ key.id }}">
-                                        <i class="fas fa-link"></i> Assign
-                                    </button>
-                                {% else %}
-                                    <button type="button" class="btn btn-sm btn-outline-warning" onclick="unassignKey({{ key.id }})">
-                                        <i class="fas fa-unlink"></i> Unassign
+                                <button type="button" class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#assignKeyModal{{ key.id }}">
+                                    <i class="fas fa-link"></i> Assign
+                                </button>
+                                {% if key.users %}
+                                    <button type="button" class="btn btn-sm btn-outline-warning me-1" onclick="unassignAllUsers({{ key.id }}, '{{ key.name }}')">
+                                        <i class="fas fa-unlink"></i> Unassign All
                                     </button>
                                 {% endif %}
                                 <button class="btn btn-sm btn-outline-danger ms-1" onclick="confirmDeleteKey('{{ key.name }}', {{ key.id }})">
@@ -289,11 +301,21 @@ function confirmDeleteKey(keyName, keyId) {
     }
 }
 
-function unassignKey(keyId) {
-    if (confirm('Are you sure you want to unassign this key from the user?')) {
+function unassignUserFromKey(keyId, userId, username, keyName) {
+    if (confirm(`Are you sure you want to remove "${username}" from key "${keyName}"?`)) {
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = `/admin/keys/${keyId}/unassign`;
+        form.action = `/admin/keys/${keyId}/unassign/${userId}`;
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+function unassignAllUsers(keyId, keyName) {
+    if (confirm(`Are you sure you want to remove ALL users from key "${keyName}"?`)) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/keys/${keyId}/unassign-all`;
         document.body.appendChild(form);
         form.submit();
     }
