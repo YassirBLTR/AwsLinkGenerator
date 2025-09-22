@@ -9,6 +9,7 @@ from typing import List, Dict, Any, Tuple, Optional
 from models import AWSKey
 from fastapi import UploadFile
 from io import BytesIO
+from cache_service import cached_bucket_stats, cache
 
 class AWSService:
     def __init__(self):
@@ -112,6 +113,7 @@ class AWSService:
                 "error": str(e)
             }
 
+    @cached_bucket_stats(ttl=300)  # Cache for 5 minutes
     def get_comprehensive_key_stats(self, aws_key: AWSKey, region: str = 'us-east-1') -> Dict[str, Any]:
         """Get comprehensive statistics for an AWS key including bucket info and permissions"""
         stats = {

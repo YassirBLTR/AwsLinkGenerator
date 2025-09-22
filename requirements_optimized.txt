@@ -1,0 +1,31 @@
+# Original requirements
+fastapi==0.104.1
+uvicorn==0.24.0
+sqlalchemy==2.0.23
+python-multipart==0.0.6
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+boto3==1.34.0
+jinja2==3.1.2
+aiofiles==23.2.1
+
+# Performance optimization additions
+redis==5.0.1              # For caching bucket limits and session data
+pillow==10.1.0            # For image optimization and compression
+aioredis==2.0.1           # Async Redis client
+asyncio-throttle==1.0.2   # Rate limiting for AWS API calls
+aioboto3==12.3.0          # Async boto3 for better AWS performance
+uvloop==0.19.0            # Faster event loop (Unix only, optional for Windows)
+orjson==3.9.10            # Faster JSON serialization
+httpx==0.25.2             # Async HTTP client for external API calls
+websockets==12.0          # For real-time progress updates
+prometheus-client==0.19.0 # For monitoring and metrics (optional)
+
+# Database optimizations
+psycopg2-binary==2.9.9    # PostgreSQL adapter (if switching from SQLite)
+alembic==1.13.1           # Database migrations
+sqlalchemy-utils==0.41.1  # Additional SQLAlchemy utilities
+
+# Monitoring and logging
+structlog==23.2.0         # Structured logging
+sentry-sdk==1.38.0        # Error tracking (optional)

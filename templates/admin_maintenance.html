@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block title %}Maintenance Mode - Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-tools"></i> Maintenance Mode Control
+    </h1>
+    <div>
+        <a href="/admin/dashboard" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Current Status -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-info-circle"></i> Current Status
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if maintenance_enabled %}
+                    <div class="alert alert-warning">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                            <div>
+                                <h5 class="mb-1">🔧 Maintenance Mode is ACTIVE</h5>
+                                <p class="mb-0">All users (except admins) will see the maintenance page.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <strong>Current Message:</strong>
+                        <div class="bg-light p-3 rounded mt-2">
+                            {{ maintenance_config.message }}
+                        </div>
+                    </div>
+                    
+                    {% if maintenance_config.estimated_completion %}
+                    <div class="mt-3">
+                        <strong>Estimated Completion:</strong>
+                        <span class="badge bg-info">{{ maintenance_config.estimated_completion }}</span>
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <div class="alert alert-success">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle fa-2x me-3"></i>
+                            <div>
+                                <h5 class="mb-1">✅ Application is ONLINE</h5>
+                                <p class="mb-0">All users can access the application normally.</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Control Panel -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-power-off"></i> Enable Maintenance Mode
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">
+                    Put the application into maintenance mode. All users will see a maintenance page.
+                </p>
+                
+                <form method="POST" action="/admin/maintenance/enable">
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Maintenance Message</label>
+                        <textarea class="form-control" id="message" name="message" rows="3" placeholder="Enter maintenance message...">{{ maintenance_config.message if maintenance_enabled else "We're currently performing scheduled maintenance to improve your experience. Please check back in a few minutes." }}</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="estimated_completion" class="form-label">Estimated Completion (Optional)</label>
+                        <input type="text" class="form-control" id="estimated_completion" name="estimated_completion" 
+                               placeholder="e.g., 30 minutes, 2:00 PM, etc." 
+                               value="{{ maintenance_config.estimated_completion or '' }}">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-warning" 
+                            {% if maintenance_enabled %}disabled{% endif %}
+                            onclick="return confirm('Are you sure you want to enable maintenance mode? This will prevent users from accessing the application.')">
+                        <i class="fas fa-tools"></i> Enable Maintenance Mode
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-play"></i> Disable Maintenance Mode
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">
+                    Return the application to normal operation. All users will be able to access the application.
+                </p>
+                
+                <form method="POST" action="/admin/maintenance/disable">
+                    <button type="submit" class="btn btn-success" 
+                            {% if not maintenance_enabled %}disabled{% endif %}
+                            onclick="return confirm('Are you sure you want to disable maintenance mode? This will allow all users to access the application.')">
+                        <i class="fas fa-check"></i> Disable Maintenance Mode
+                    </button>
+                </form>
+                
+                {% if not maintenance_enabled %}
+                    <small class="text-muted d-block mt-2">
+                        <i class="fas fa-info-circle"></i> Maintenance mode is already disabled.
+                    </small>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Advanced Settings -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-cog"></i> Advanced Settings
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-shield-alt"></i> Bypass Options</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success"></i> Admins can always access</li>
+                            <li><i class="fas fa-check text-success"></i> Health checks: <code>/health</code>, <code>/status</code></li>
+                            <li><i class="fas fa-info-circle text-info"></i> Use header: <code>X-Maintenance-Bypass: admin123</code></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-link"></i> Useful Links</h6>
+                        <ul class="list-unstyled">
+                            <li>
+                                <a href="/health" target="_blank" class="btn btn-sm btn-outline-info">
+                                    <i class="fas fa-heartbeat"></i> Health Check
+                                </a>
+                            </li>
+                            <li class="mt-2">
+                                <a href="/status" target="_blank" class="btn btn-sm btn-outline-info">
+                                    <i class="fas fa-info"></i> Status Check
+                                </a>
+                            </li>
+                            <li class="mt-2">
+                                <button class="btn btn-sm btn-outline-secondary" onclick="previewMaintenance()">
+                                    <i class="fas fa-eye"></i> Preview Maintenance Page
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-rocket"></i> Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="btn-group" role="group">
+                    <button class="btn btn-outline-warning" onclick="quickMaintenance(5)">
+                        <i class="fas fa-clock"></i> 5 Min Maintenance
+                    </button>
+                    <button class="btn btn-outline-warning" onclick="quickMaintenance(15)">
+                        <i class="fas fa-clock"></i> 15 Min Maintenance
+                    </button>
+                    <button class="btn btn-outline-warning" onclick="quickMaintenance(30)">
+                        <i class="fas fa-clock"></i> 30 Min Maintenance
+                    </button>
+                </div>
+                <small class="text-muted d-block mt-2">
+                    <i class="fas fa-info-circle"></i> Quick maintenance with pre-set messages and durations
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function previewMaintenance() {
+    // Open maintenance page in new tab with bypass header
+    const newWindow = window.open('/', '_blank');
+    // Note: Can't set headers from JavaScript, so this will show normal page
+    // Admins can test by temporarily enabling maintenance mode
+}
+
+function quickMaintenance(minutes) {
+    const message = `We're performing a quick ${minutes}-minute maintenance to improve performance. We'll be back shortly!`;
+    const completion = `${minutes} minutes`;
+    
+    if (confirm(`Enable ${minutes}-minute maintenance mode?`)) {
+        // Create a form and submit
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/admin/maintenance/enable';
+        
+        const messageInput = document.createElement('input');
+        messageInput.type = 'hidden';
+        messageInput.name = 'message';
+        messageInput.value = message;
+        
+        const completionInput = document.createElement('input');
+        completionInput.type = 'hidden';
+        completionInput.name = 'estimated_completion';
+        completionInput.value = completion;
+        
+        form.appendChild(messageInput);
+        form.appendChild(completionInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// Auto-refresh status every 30 seconds
+setInterval(() => {
+    const statusElements = document.querySelectorAll('.alert');
+    // Could add AJAX status check here
+}, 30000);
+</script>
+{% endblock %}

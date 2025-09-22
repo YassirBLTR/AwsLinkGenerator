@@ -20,11 +20,17 @@ from database import get_db, engine
 from models import Base, User, AWSKey
 from schemas import UserCreate, UserResponse, AWSKeyCreate, AWSKeyResponse, Token
 from aws_service import AWSService
+from maintenance import maintenance_middleware, maintenance
 
 # Create tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="AWS S3 Bucket Manager", version="1.0.0")
+
+# Add maintenance mode middleware
+@app.middleware("http")
+async def maintenance_check(request: Request, call_next):
+    return await maintenance_middleware(request, call_next)
 
 # Static files and templates
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -183,15 +189,54 @@ async def create_user(
 
 @app.get("/admin/keys", response_class=HTMLResponse)
 async def admin_keys(request: Request, current_user: User = Depends(get_admin_user), db: Session = Depends(get_db)):
-    keys = db.query(AWSKey).all()
+    # Optimized database queries with eager loading
+    from sqlalchemy.orm import joinedload
+    import concurrent.futures
+    import time
+    
+    start_time = time.time()
+    
+    # Use eager loading to avoid N+1 queries
+    keys = db.query(AWSKey).options(joinedload(AWSKey.users)).all()
     users = db.query(User).filter(User.is_admin == False).all()
     
-    # Get comprehensive stats for each key
+    print(f"Database queries completed in {time.time() - start_time:.2f} seconds")
+    
+    # Get comprehensive stats in parallel for better performance
     aws_service = AWSService()
-    keys_with_stats = []
-    for key in keys:
-        key_stats = aws_service.get_comprehensive_key_stats(key)
-        keys_with_stats.append(key_stats)
+    
+    # Use thread pool for parallel stats gathering (max 5 concurrent to avoid rate limits)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        stats_futures = {
+            executor.submit(aws_service.get_comprehensive_key_stats, key): key 
+            for key in keys
+        }
+        
+        keys_with_stats = []
+        for future in concurrent.futures.as_completed(stats_futures, timeout=30):
+            try:
+                stats = future.result(timeout=10)  # 10 second timeout per key
+                keys_with_stats.append(stats)
+            except Exception as e:
+                # Fallback stats for failed keys
+                key = stats_futures[future]
+                keys_with_stats.append({
+                    'key_id': key.id,
+                    'key_name': key.name,
+                    'bucket_count': None,
+                    'bucket_limit': 100,
+                    'buckets_remaining': None,
+                    'can_create_buckets': None,
+                    'connection_error': f"Timeout or error: {str(e)[:50]}..."
+                })
+                print(f"Stats gathering failed for key {key.name}: {e}")
+    
+    # Sort stats to match original key order
+    stats_dict = {stat['key_id']: stat for stat in keys_with_stats}
+    keys_with_stats = [stats_dict.get(key.id, {}) for key in keys]
+    
+    total_time = time.time() - start_time
+    print(f"Admin keys page loaded in {total_time:.2f} seconds")
     
     return templates.TemplateResponse("admin_keys.html", {
         "request": request,
@@ -263,8 +308,13 @@ async def user_dashboard(request: Request, current_user: User = Depends(get_curr
     if current_user.is_admin:
         return RedirectResponse(url="/admin/dashboard", status_code=302)
     
-    # Get keys assigned to this user through many-to-many relationship
-    user_keys = current_user.aws_keys
+    # Optimized query with eager loading to avoid N+1 queries
+    from sqlalchemy.orm import joinedload
+    user_with_keys = db.query(User).options(
+        joinedload(User.aws_keys)
+    ).filter(User.id == current_user.id).first()
+    
+    user_keys = user_with_keys.aws_keys if user_with_keys else []
 
     # Just-in-time re-validation to avoid stale statuses
     aws_service = AWSService()
@@ -375,12 +425,20 @@ async def create_buckets(
             "error": f"Error processing uploaded image: {str(e)}"
         })
 
-    print(f"DEBUG MAIN: About to call AWS service with {len(valid_keys)} keys")
-    aws_service = AWSService()
-    results = aws_service.create_buckets_for_user(valid_keys, region, num_buckets, image_file=image, image_content=image_content)
-    print(f"DEBUG MAIN: AWS service returned: {results}")
+    print(f"DEBUG MAIN: About to call optimized AWS service with {len(valid_keys)} keys")
+    
+    # Use optimized AWS service for parallel processing
+    from aws_service_optimized import OptimizedAWSService
+    aws_service = OptimizedAWSService()
+    
+    # Use async parallel processing
+    import asyncio
+    results = await aws_service.create_buckets_for_user_parallel(valid_keys, region, num_buckets, image_file=image, image_content=image_content)
+    
+    print(f"DEBUG MAIN: Optimized AWS service returned: {results}")
     print(f"DEBUG MAIN: Total buckets created: {results.get('total_buckets_created', 0)}")
     print(f"DEBUG MAIN: Total URLs generated: {results.get('total_urls_generated', 0)}")
+    print(f"DEBUG MAIN: Processing time: {results.get('processing_time', 'N/A')}")
     
     return templates.TemplateResponse("bucket_results.html", {
         "request": request,
@@ -536,6 +594,48 @@ async def refresh_key_stats(
     db.commit()
     
     return RedirectResponse(url="/admin/keys", status_code=302)
+
+# Maintenance Mode Admin Routes
+@app.get("/admin/maintenance", response_class=HTMLResponse)
+async def admin_maintenance(request: Request, current_user: User = Depends(get_admin_user)):
+    """Admin page to control maintenance mode"""
+    return templates.TemplateResponse("admin_maintenance.html", {
+        "request": request,
+        "current_user": current_user,
+        "maintenance_enabled": maintenance.is_enabled(),
+        "maintenance_config": maintenance.config
+    })
+
+@app.post("/admin/maintenance/enable")
+async def enable_maintenance(
+    message: str = Form("We're currently performing scheduled maintenance to improve your experience."),
+    estimated_completion: str = Form(""),
+    current_user: User = Depends(get_admin_user)
+):
+    """Enable maintenance mode"""
+    maintenance.enable(message, estimated_completion if estimated_completion else None)
+    return RedirectResponse(url="/admin/maintenance", status_code=302)
+
+@app.post("/admin/maintenance/disable")
+async def disable_maintenance(current_user: User = Depends(get_admin_user)):
+    """Disable maintenance mode"""
+    maintenance.disable()
+    return RedirectResponse(url="/admin/maintenance", status_code=302)
+
+# Health check endpoint (bypasses maintenance)
+@app.get("/health")
+async def health_check():
+    """Health check endpoint that bypasses maintenance mode"""
+    return {"status": "healthy", "timestamp": datetime.now().isoformat()}
+
+@app.get("/status")
+async def status_check():
+    """Status endpoint that bypasses maintenance mode"""
+    return {
+        "status": "running",
+        "maintenance_mode": maintenance.is_enabled(),
+        "timestamp": datetime.now().isoformat()
+    }
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
