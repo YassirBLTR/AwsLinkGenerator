@@ -25,6 +25,7 @@
                             <th>Key Name</th>
                             <th>Access Key</th>
                             <th>Status</th>
+                            <th>Bucket Stats</th>
                             <th>Assigned User</th>
                             <th>Created Date</th>
                             <th>Actions</th>
@@ -32,6 +33,7 @@
                     </thead>
                     <tbody>
                         {% for key in keys %}
+                        {% set key_stats = keys_with_stats[loop.index0] %}
                         <tr>
                             <td>{{ key.id }}</td>
                             <td>
@@ -68,6 +70,40 @@
                                 {% endif %}
                             </td>
                             <td>
+                                {% if key_stats.bucket_count is not none %}
+                                    <div class="small">
+                                        <div class="d-flex justify-content-between">
+                                            <span><strong>{{ key_stats.bucket_count }}</strong>/{{ key_stats.bucket_limit }}</span>
+                                            {% if key_stats.can_create_buckets %}
+                                                <span class="badge bg-success">✓</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">✗</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="progress mt-1" style="height: 4px;">
+                                            {% set percentage = (key_stats.bucket_count / key_stats.bucket_limit * 100) %}
+                                            <div class="progress-bar {% if percentage > 80 %}bg-danger{% elif percentage > 60 %}bg-warning{% else %}bg-success{% endif %}" 
+                                                 style="width: {{ percentage }}%"></div>
+                                        </div>
+                                        <small class="text-muted">{{ key_stats.buckets_remaining }} remaining</small>
+                                        {% if key_stats.permissions_error %}
+                                            <div class="text-danger small mt-1">
+                                                <i class="fas fa-exclamation-triangle"></i> {{ key_stats.permissions_error[:30] }}...
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% elif key_stats.connection_error %}
+                                    <div class="text-danger small">
+                                        <i class="fas fa-times-circle"></i> Connection Error
+                                        <div class="text-muted">{{ key_stats.connection_error[:30] }}...</div>
+                                    </div>
+                                {% else %}
+                                    <div class="text-muted small">
+                                        <i class="fas fa-question-circle"></i> Not checked
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td>
                                 {% if key.user %}
                                     <span class="badge bg-success">
                                         <i class="fas fa-user"></i> {{ key.user.username }}
@@ -80,8 +116,8 @@
                             </td>
                             <td>{{ key.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
                             <td>
-                                <button type="button" class="btn btn-sm btn-outline-info me-1" onclick="validateKey({{ key.id }})">
-                                    <i class="fas fa-check"></i> Check
+                                <button type="button" class="btn btn-sm btn-outline-info me-1" onclick="refreshStats({{ key.id }})">
+                                    <i class="fas fa-sync"></i> Refresh
                                 </button>
                                 {% if not key.user %}
                                     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#assignKeyModal{{ key.id }}">
@@ -268,6 +304,16 @@ function validateKey(keyId) {
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = `/admin/keys/${keyId}/validate`;
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+function refreshStats(keyId) {
+    if (confirm('This will refresh the bucket statistics and validate the key. Continue?')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/keys/${keyId}/refresh-stats`;
         document.body.appendChild(form);
         form.submit();
     }

@@ -112,6 +112,66 @@ class AWSService:
                 "error": str(e)
             }
 
+    def get_comprehensive_key_stats(self, aws_key: AWSKey, region: str = 'us-east-1') -> Dict[str, Any]:
+        """Get comprehensive statistics for an AWS key including bucket info and permissions"""
+        stats = {
+            "key_id": aws_key.id,
+            "key_name": aws_key.name,
+            "access_key": aws_key.access_key,
+            "status": aws_key.status,
+            "last_checked": aws_key.last_checked,
+            "bucket_limit": self.bucket_limit,
+            "bucket_count": None,
+            "buckets_remaining": None,
+            "can_create_buckets": False,
+            "can_list_buckets": False,
+            "permissions_error": None,
+            "connection_error": None,
+            "last_stats_check": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        
+        try:
+            s3 = self._create_s3_client(aws_key, region)
+            
+            # Test 1: Can list buckets?
+            try:
+                response = s3.list_buckets()
+                stats["can_list_buckets"] = True
+                bucket_count = len(response.get('Buckets', []))
+                stats["bucket_count"] = bucket_count
+                stats["buckets_remaining"] = self.bucket_limit - bucket_count
+                
+                # Get bucket names for additional info
+                bucket_names = [bucket['Name'] for bucket in response.get('Buckets', [])]
+                stats["bucket_names"] = bucket_names[:5]  # Show first 5 bucket names
+                if len(bucket_names) > 5:
+                    stats["more_buckets"] = len(bucket_names) - 5
+                    
+            except Exception as list_error:
+                stats["can_list_buckets"] = False
+                stats["permissions_error"] = f"Cannot list buckets: {str(list_error)}"
+            
+            # Test 2: Can create buckets? (only if we can list them)
+            if stats["can_list_buckets"] and stats["buckets_remaining"] > 0:
+                test_bucket_name = f"test-validation-{random.randint(100000, 999999)}"
+                try:
+                    s3.create_bucket(Bucket=test_bucket_name)
+                    s3.delete_bucket(Bucket=test_bucket_name)
+                    stats["can_create_buckets"] = True
+                except Exception as create_error:
+                    stats["can_create_buckets"] = False
+                    stats["permissions_error"] = f"Cannot create buckets: {str(create_error)}"
+            elif stats["buckets_remaining"] == 0:
+                stats["can_create_buckets"] = False
+                stats["permissions_error"] = "Bucket limit reached"
+                
+        except Exception as connection_error:
+            stats["connection_error"] = str(connection_error)
+            stats["can_list_buckets"] = False
+            stats["can_create_buckets"] = False
+            
+        return stats
+
     def create_buckets_for_user(self, user_keys: List[AWSKey], region: str, num_buckets: int, image_file: Optional[UploadFile] = None, image_content: Optional[bytes] = None) -> Dict[str, Any]:
         """Create buckets for a user using their assigned AWS keys"""
         results = {

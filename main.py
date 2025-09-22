@@ -185,10 +185,19 @@ async def create_user(
 async def admin_keys(request: Request, current_user: User = Depends(get_admin_user), db: Session = Depends(get_db)):
     keys = db.query(AWSKey).all()
     users = db.query(User).filter(User.is_admin == False).all()
+    
+    # Get comprehensive stats for each key
+    aws_service = AWSService()
+    keys_with_stats = []
+    for key in keys:
+        key_stats = aws_service.get_comprehensive_key_stats(key)
+        keys_with_stats.append(key_stats)
+    
     return templates.TemplateResponse("admin_keys.html", {
         "request": request,
         "current_user": current_user,
         "keys": keys,
+        "keys_with_stats": keys_with_stats,
         "users": users
     })
 
@@ -462,6 +471,27 @@ async def validate_key_user(
     db.commit()
     
     return RedirectResponse(url="/user/dashboard", status_code=302)
+
+@app.post("/admin/keys/{key_id}/refresh-stats")
+async def refresh_key_stats(
+    key_id: int,
+    current_user: User = Depends(get_admin_user),
+    db: Session = Depends(get_db)
+):
+    key = db.query(AWSKey).filter(AWSKey.id == key_id).first()
+    if not key:
+        raise HTTPException(status_code=404, detail="Key not found")
+    
+    # Refresh both validation status and comprehensive stats
+    aws_service = AWSService()
+    status, message = aws_service.validate_aws_key(key.access_key, key.secret_key)
+    
+    # Update key status and last_checked timestamp
+    key.status = status
+    key.last_checked = func.now()
+    db.commit()
+    
+    return RedirectResponse(url="/admin/keys", status_code=302)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
