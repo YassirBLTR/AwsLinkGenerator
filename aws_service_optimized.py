@@ -344,7 +344,8 @@ class OptimizedAWSService:
                 Bucket=bucket_name,
                 Policy=json.dumps(bucket_policy)
             )
-            
+            # Give a brief moment for policy to propagate before object uploads
+            time.sleep(1.0)
             print(f"DEBUG: Successfully configured bucket {bucket_name}")
             
         except Exception as e:
@@ -352,28 +353,40 @@ class OptimizedAWSService:
             raise
 
     def _upload_image_to_bucket(self, s3, bucket_name: str, region: str, image_bytes: bytes, file_ext: str, content_type: str) -> Optional[str]:
-        """Upload image to S3 bucket"""
+        """Upload image to S3 bucket without ACLs; rely on bucket policy for public access."""
         try:
             object_key = f"image.{file_ext}"
-            
-            s3.put_object(
-                Bucket=bucket_name,
-                Key=object_key,
-                Body=image_bytes,
-                ContentType=content_type,
-                ACL='public-read'
-            )
-            
+            # Prefer put_object without ACLs (compatible with BucketOwnerEnforced)
+            try:
+                s3.put_object(
+                    Bucket=bucket_name,
+                    Key=object_key,
+                    Body=image_bytes,
+                    ContentType=content_type,
+                    CacheControl='no-cache, no-store, must-revalidate'
+                )
+                print("DEBUG: Image uploaded without ACL")
+            except Exception as no_acl_err:
+                print(f"DEBUG: put_object without ACL failed: {no_acl_err}. Trying with ACL fallback...")
+                # Fallback for older buckets that require ACLs
+                s3.put_object(
+                    Bucket=bucket_name,
+                    Key=object_key,
+                    Body=image_bytes,
+                    ContentType=content_type,
+                    ACL='public-read',
+                    CacheControl='no-cache, no-store, must-revalidate'
+                )
+                print("DEBUG: Image uploaded with public-read ACL (fallback)")
             image_url = f"https://{bucket_name}.s3.{region}.amazonaws.com/{object_key}"
             print(f"DEBUG: Image uploaded to {image_url}")
             return image_url
-            
         except Exception as e:
             print(f"ERROR: Failed to upload image to {bucket_name}: {str(e)}")
             return None
 
     def _upload_html_file(self, s3, bucket_name: str, region: str) -> Optional[str]:
-        """Upload HTML display file to S3 bucket"""
+        """Upload HTML display file to S3 bucket without ACLs; rely on bucket policy."""
         try:
             html_content = f"""<!DOCTYPE html>
 <html lang="en">
@@ -449,13 +462,27 @@ class OptimizedAWSService:
 </body>
 </html>"""
             
-            s3.put_object(
-                Bucket=bucket_name,
-                Key='index.html',
-                Body=html_content.encode('utf-8'),
-                ContentType='text/html',
-                ACL='public-read'
-            )
+            # Prefer without ACL
+            try:
+                s3.put_object(
+                    Bucket=bucket_name,
+                    Key='index.html',
+                    Body=html_content.encode('utf-8'),
+                    ContentType='text/html',
+                    CacheControl='no-cache, no-store, must-revalidate'
+                )
+                print("DEBUG: HTML uploaded without ACL")
+            except Exception as no_acl_err:
+                print(f"DEBUG: HTML put_object without ACL failed: {no_acl_err}. Trying with ACL fallback...")
+                s3.put_object(
+                    Bucket=bucket_name,
+                    Key='index.html',
+                    Body=html_content.encode('utf-8'),
+                    ContentType='text/html',
+                    ACL='public-read',
+                    CacheControl='no-cache, no-store, must-revalidate'
+                )
+                print("DEBUG: HTML uploaded with public-read ACL (fallback)")
             
             html_url = f"https://{bucket_name}.s3.{region}.amazonaws.com/index.html"
             print(f"DEBUG: HTML file uploaded to {html_url}")
