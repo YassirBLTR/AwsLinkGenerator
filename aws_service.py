@@ -217,6 +217,7 @@ class AWSService:
 
             # Check bucket limits
             bucket_info = self.get_bucket_count(aws_key, region)
+
             if not bucket_info["success"]:
                 key_result["errors"].append(f"Failed to check bucket limits: {bucket_info.get('error', 'Unknown error')}")
                 return key_result
@@ -224,132 +225,105 @@ class AWSService:
             if bucket_info["remaining"] < num_buckets:
                 key_result["errors"].append(f"Cannot create {num_buckets} buckets, only {bucket_info['remaining']} remaining")
                 return key_result
+            
             # Create buckets
             for i in range(num_buckets):
                 try:
                     bucket_name = self._generate_random_name(prefix='bucket')
-                    
                     # Create and configure bucket
                     self._create_and_configure_bucket(s3, bucket_name, region)
-                    
-                    # Upload image if provided
+                    key_result["buckets_created"] += 1
+                    # Upload image and then HTML if image provided
                     if image_bytes:
                         print(f"DEBUG: Uploading image to bucket {bucket_name}")
                         print(f"DEBUG: Image bytes length: {len(image_bytes)}")
                         print(f"DEBUG: File extension: {file_ext}")
                         print(f"DEBUG: Content type: {content_type}")
-                        
-                        # Wait a moment for bucket policy to propagate
                         import time
-                        time.sleep(2)
-                        
+                        time.sleep(1)
                         image_url = self._upload_image_to_bucket(s3, bucket_name, region, image_bytes, file_ext, content_type)
                         if image_url:
                             print(f"DEBUG: Successfully uploaded image, URL: {image_url}")
                             key_result["urls"].append({"type": "image", "url": image_url})
-                        
-                    # Also upload the index.html file from directory
-                    html_url = self._upload_html_file(s3, bucket_name, region)
-                    if html_url:
-                        print(f"DEBUG: Successfully uploaded HTML file, URL: {html_url}")
-                        key_result["urls"].append({"type": "html", "url": html_url})
+                            html_url = self._upload_html_file(s3, bucket_name, region)
+                            if html_url:
+                                print(f"DEBUG: Successfully uploaded HTML file, URL: {html_url}")
+                                key_result["urls"].append({"type": "html", "url": html_url})
+                            else:
+                                print(f"WARNING: Failed to upload HTML file for bucket {bucket_name}")
+                        else:
+                            print(f"ERROR: Failed to upload image to bucket {bucket_name}")
+                            key_result["errors"].append(f"Failed to upload image to bucket {bucket_name}")
                     else:
-                        print(f"WARNING: Failed to upload HTML file for bucket {bucket_name}")
-html_url = self._upload_html_file(s3, bucket_name, region)
-if html_url:
-print(f"DEBUG: Successfully uploaded HTML file, URL: {html_url}")
-key_result["urls"].append({"type": "html", "url": html_url})
-else:
-print(f"WARNING: Failed to upload HTML file for bucket {bucket_name}")
-else:
-print(f"WARNING: No image bytes available for bucket {bucket_name}")
-key_result["errors"].append("No image data provided for upload")
-                    
-key_result["buckets_created"] += 1
-                    
-except Exception as bucket_error:
-key_result["errors"].append(f"Failed to create bucket {i+1}: {str(bucket_error)}")
+                        print(f"WARNING: No image bytes available for bucket {bucket_name}")
+                        key_result["errors"].append("No image data provided for upload")
+                except Exception as bucket_error:
+                    key_result["errors"].append(f"Failed to create bucket {i+1}: {str(bucket_error)}")
+        except Exception as key_error:
+            key_result["errors"].append(f"Failed to process key: {str(key_error)}")
+        return key_result
 
-except Exception as key_error:
-key_result["errors"].append(f"Failed to initialize AWS client: {str(key_error)}")
+    def _create_and_configure_bucket(self, s3, bucket_name: str, region: str):
+        """Create bucket and configure public access settings"""
+        try:
+            print(f"DEBUG: Creating bucket {bucket_name} in region {region}")
+            # Create bucket with proper region handling
+            if region == 'us-east-1':
+                s3.create_bucket(Bucket=bucket_name)
+            else:
+                s3.create_bucket(
+                    Bucket=bucket_name,
+                    CreateBucketConfiguration={'LocationConstraint': region}
+                )
+            print(f"DEBUG: Bucket {bucket_name} created successfully")
 
-return key_result
+            # Configure public access block - allow public policies and access
+            try:
+                s3.put_public_access_block(
+                    Bucket=bucket_name,
+                    PublicAccessBlockConfiguration={
+                        'BlockPublicAcls': False,
+                        'IgnorePublicAcls': False,
+                        'BlockPublicPolicy': False,
+                        'RestrictPublicBuckets': False
+                    }
+                )
+                print(f"DEBUG: Public access block configured for {bucket_name}")
+            except Exception as public_access_error:
+                print(f"WARNING: Failed to configure public access block for {bucket_name}: {str(public_access_error)}")
 
-def _create_and_configure_bucket(self, s3, bucket_name: str, region: str):
-"""Create bucket and configure public access settings"""
-try:
-print(f"DEBUG: Creating bucket {bucket_name} in region {region}")
-            
-# Create bucket
-if region == 'us-east-1':
-s3.create_bucket(Bucket=bucket_name)
-else:
-s3.create_bucket(
-Bucket=bucket_name,
-CreateBucketConfiguration={'LocationConstraint': region}
-)
-print(f"DEBUG: Bucket {bucket_name} created successfully")
+            # Optionally configure bucket ownership controls (non-fatal)
+            try:
+                s3.put_bucket_ownership_controls(
+                    Bucket=bucket_name,
+                    OwnershipControls={'Rules': [{'ObjectOwnership': 'BucketOwnerPreferred'}]}
+                )
+                print(f"DEBUG: Bucket ownership configured for {bucket_name}")
+            except Exception as ownership_error:
+                print(f"WARNING: Failed to configure bucket ownership for {bucket_name}: {str(ownership_error)}")
 
-# Configure public access - Allow public read access for objects
-try:
-# Configure bucket ownership - Use ObjectOwnership=ObjectWriter to allow ACLs
-s3.put_bucket_ownership_controls(
-Bucket=bucket_name,
-OwnershipControls={
-'Rules': [{'ObjectOwnership': 'ObjectWriter'}]
-}
-)
-print(f"DEBUG: Bucket ownership configured for {bucket_name}")
-except Exception as ownership_error:
-print(f"WARNING: Failed to configure bucket ownership for {bucket_name}: {str(ownership_error)}")
-            
-try:
-# Configure public access block - Allow public access
-s3.put_public_access_block(
-Bucket=bucket_name,
-PublicAccessBlockConfiguration={
-'BlockPublicAcls': False,
-'IgnorePublicAcls': False,
-'BlockPublicPolicy': False,  # Allow public policies
-'RestrictPublicBuckets': False  # Allow public bucket access
-}
-)
-print(f"DEBUG: Public access block configured for {bucket_name}")
-except Exception as public_access_error:
-print(f"WARNING: Failed to configure public access block for {bucket_name}: {str(public_access_error)}")
-            
-try:
-# Add bucket policy to allow public read access
-bucket_policy = {
-"Version": "2012-10-17",
-"Statement": [
-{
-"Sid": "PublicReadGetObject",
-"Effect": "Allow",
-"Principal": "*",
-"Action": "s3:GetObject",
-"Resource": f"arn:aws:s3:::{bucket_name}/*"
-}
-]
-}
-                
-s3.put_bucket_policy(
-Bucket=bucket_name,
-Policy=json.dumps(bucket_policy)
-)
-print(f"DEBUG: Bucket policy configured for {bucket_name}")
-except Exception as policy_error:
-print(f"WARNING: Failed to configure bucket policy for {bucket_name}: {str(policy_error)}")
-print(f"WARNING: URLs may not be publicly accessible")
-                
-except Exception as e:
-print(f"ERROR: Failed to create/configure bucket {bucket_name}: {str(e)}")
-raise
-            print(f"ERROR: Failed to upload image to {bucket_name}: {str(e)}")
-            print(f"ERROR: Exception type: {type(e).__name__}")
-            import traceback
-            print(f"ERROR: Full traceback: {traceback.format_exc()}")
-            return None
+            # Add bucket policy to allow public read access
+            try:
+                bucket_policy = {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Sid": "PublicReadGetObject",
+                            "Effect": "Allow",
+                            "Principal": "*",
+                            "Action": "s3:GetObject",
+                            "Resource": f"arn:aws:s3:::{bucket_name}/*"
+                        }
+                    ]
+                }
+                s3.put_bucket_policy(Bucket=bucket_name, Policy=json.dumps(bucket_policy))
+                print(f"DEBUG: Bucket policy configured for {bucket_name}")
+            except Exception as policy_error:
+                print(f"WARNING: Failed to configure bucket policy for {bucket_name}: {str(policy_error)}")
+                print("WARNING: URLs may not be publicly accessible")
+        except Exception as e:
+            print(f"ERROR: Failed to create/configure bucket {bucket_name}: {str(e)}")
+            raise
 
     def _upload_image_to_bucket(self, s3, bucket_name: str, region: str, 
                               image_bytes: bytes, file_ext: str, content_type: str) -> Optional[str]:
