@@ -371,7 +371,7 @@ class AWSService:
     def _upload_html_file(self, s3, bucket_name: str, region: str) -> Optional[str]:
         """Upload the index.html file from the project directory"""
         try:
-            html_key = self._generate_random_name(length=30) + ".html"
+            html_key = 'index.html'
             html_file_path = "index.html"
             
             print(f"DEBUG: Uploading HTML file {html_file_path} as {html_key} to bucket {bucket_name}")

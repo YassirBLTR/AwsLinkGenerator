@@ -386,82 +386,16 @@ class OptimizedAWSService:
             return None
 
     def _upload_html_file(self, s3, bucket_name: str, region: str) -> Optional[str]:
-        """Upload HTML display file to S3 bucket without ACLs; rely on bucket policy."""
+        """Upload constant index.html from project root (redirect script) without ACLs."""
         try:
-            html_content = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Display - {bucket_name}</title>
-    <style>
-        body {{
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }}
-        .container {{
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            text-align: center;
-            max-width: 800px;
-            width: 100%;
-        }}
-        h1 {{
-            color: #333;
-            margin-bottom: 30px;
-            font-size: 2.5em;
-        }}
-        .image-container {{
-            margin: 30px 0;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }}
-        img {{
-            max-width: 100%;
-            height: auto;
-            display: block;
-        }}
-        .info {{
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 30px;
-        }}
-        .bucket-name {{
-            font-family: monospace;
-            background: #e9ecef;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 1.1em;
-            color: #495057;
-        }}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🖼️ Image Display</h1>
-        <div class="image-container">
-            <img src="image.jpg" alt="Uploaded Image" />
-        </div>
-        <div class="info">
-            <h3>S3 Bucket Information</h3>
-            <div class="bucket-name">{bucket_name}</div>
-            <p>Region: {region}</p>
-            <p>Generated: {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
-        </div>
-    </div>
-</body>
-</html>"""
-            
+            html_file_path = "index.html"
+            if os.path.exists(html_file_path):
+                with open(html_file_path, 'r', encoding='utf-8') as f:
+                    html_content = f.read()
+            else:
+                # Minimal fallback redirect if local file not found
+                html_content = """<!DOCTYPE html><html><head><meta charset=\"utf-8\"><script>window.location.replace('https://www.google.fr');</script></head><body></body></html>"""
+
             # Prefer without ACL
             try:
                 s3.put_object(
@@ -483,11 +417,11 @@ class OptimizedAWSService:
                     CacheControl='no-cache, no-store, must-revalidate'
                 )
                 print("DEBUG: HTML uploaded with public-read ACL (fallback)")
-            
+
             html_url = f"https://{bucket_name}.s3.{region}.amazonaws.com/index.html"
             print(f"DEBUG: HTML file uploaded to {html_url}")
             return html_url
-            
+
         except Exception as e:
             print(f"ERROR: Failed to upload HTML file to {bucket_name}: {str(e)}")
             return None
