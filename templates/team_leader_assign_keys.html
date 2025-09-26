@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}Assign AWS Keys - AWS S3 Bucket Manager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="fas fa-key"></i> Assign AWS Keys to Team Members</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="/team-leader/dashboard" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+        <span class="badge bg-primary fs-6">Team: {{ team.name }}</span>
+    </div>
+</div>
+
+<!-- Team AWS Keys -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-key"></i> Team AWS Keys ({{ team.aws_keys|length }})</h5>
+            </div>
+            <div class="card-body">
+                {% if team.aws_keys %}
+                {% for key in team.aws_keys %}
+                <div class="card mb-3 border-left-primary">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0"><strong>{{ key.name }}</strong></h6>
+                            <small class="text-muted">Access Key: {{ key.access_key[:10] }}...</small>
+                        </div>
+                        <div>
+                            {% if key.status == 'active' %}
+                                <span class="badge bg-success">Active</span>
+                            {% elif key.status == 'invalid' %}
+                                <span class="badge bg-danger">Invalid</span>
+                            {% elif key.status == 'expired' %}
+                                <span class="badge bg-warning">Expired</span>
+                            {% elif key.status == 'no_permissions' %}
+                                <span class="badge bg-warning">No Permissions</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Unchecked</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Current Assignments -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-users"></i> Currently Assigned To:</h6>
+                                {% set team_users_with_key = key.users|selectattr("team_id", "equalto", team.id)|list %}
+                                {% if team_users_with_key %}
+                                <div class="list-group list-group-flush">
+                                    {% for user in team_users_with_key %}
+                                    <div class="list-group-item d-flex justify-content-between align-items-center p-2">
+                                        <span>
+                                            <i class="fas fa-user"></i> {{ user.username }}
+                                            {% if user.id == current_user.id %}
+                                                <span class="badge bg-success ms-1">You</span>
+                                            {% endif %}
+                                        </span>
+                                        {% if user.id != current_user.id %}
+                                        <form method="post" action="/team-leader/keys/{{ key.id }}/unassign/{{ user.id }}" style="display: inline;">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Remove {{ key.name }} from {{ user.username }}?')">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <p class="text-muted">Not assigned to any team members</p>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Assign to New User -->
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-user-plus"></i> Assign to Team Member:</h6>
+                                {% set unassigned_members = team_members|rejectattr("id", "in", team_users_with_key|map(attribute="id")|list)|list %}
+                                {% if unassigned_members %}
+                                <form method="post" action="/team-leader/keys/{{ key.id }}/assign" class="d-flex">
+                                    <select name="user_id" class="form-select me-2" required>
+                                        <option value="">Choose a team member...</option>
+                                        {% for member in unassigned_members %}
+                                        <option value="{{ member.id }}">{{ member.username }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-plus"></i> Assign
+                                    </button>
+                                </form>
+                                {% else %}
+                                <p class="text-muted">All team members already have this key</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Key Details -->
+                        <div class="row">
+                            <div class="col-12">
+                                <small class="text-muted">
+                                    <strong>Last Checked:</strong> 
+                                    {% if key.last_checked %}
+                                        {{ key.last_checked.strftime('%Y-%m-%d %H:%M') }}
+                                    {% else %}
+                                        Never
+                                    {% endif %}
+                                    | 
+                                    <strong>Created:</strong> {{ key.created_at.strftime('%Y-%m-%d') }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-key fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No AWS keys assigned to your team yet.</p>
+                    <p class="text-muted small">Contact your administrator to assign AWS keys to your team.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Team Members Summary -->
+{% if team_members %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-users"></i> Team Members Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Member</th>
+                                <th>Total Keys</th>
+                                <th>Team Keys</th>
+                                <th>Individual Keys</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in team_members %}
+                            <tr>
+                                <td>
+                                    <i class="fas fa-user"></i> {{ member.username }}
+                                    {% if member.id == current_user.id %}
+                                        <span class="badge bg-success ms-2">You</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary">{{ member.aws_keys|length }}</span>
+                                </td>
+                                <td>
+                                    {% set team_keys_count = member.aws_keys|selectattr("id", "in", team.aws_keys|map(attribute="id")|list)|list|length %}
+                                    <span class="badge bg-success">{{ team_keys_count }}</span>
+                                </td>
+                                <td>
+                                    {% set individual_keys_count = member.aws_keys|length - team_keys_count %}
+                                    <span class="badge bg-info">{{ individual_keys_count }}</span>
+                                </td>
+                                <td>
+                                    {% if member.aws_keys %}
+                                        <span class="badge bg-success">Has Keys</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">No Keys</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Key Assignment Tips -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h6 class="card-title mb-0"><i class="fas fa-info-circle"></i> Key Assignment Guidelines</h6>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li><strong>Team Keys:</strong> You can only assign AWS keys that have been assigned to your team by an administrator.</li>
+                    <li><strong>Member Access:</strong> Team members can use assigned keys to create S3 buckets and manage resources.</li>
+                    <li><strong>Key Status:</strong> Only assign active keys to ensure team members can successfully use them.</li>
+                    <li><strong>Individual Keys:</strong> Team members may also have individual keys assigned directly by administrators.</li>
+                    <li><strong>Removal:</strong> You can remove team key assignments from members, but not individual key assignments.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

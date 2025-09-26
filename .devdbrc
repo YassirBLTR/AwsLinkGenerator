@@ -1,0 +1,6 @@
+[
+  {
+    "type": "sqlite",
+    "path": "c:\\Apps\\AwsLinkGenerator\\aws_manager.db"
+  }
+]

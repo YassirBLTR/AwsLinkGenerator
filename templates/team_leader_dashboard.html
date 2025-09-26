@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}Team Leader Dashboard - AWS S3 Bucket Manager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="fas fa-tachometer-alt"></i> Team Leader Dashboard</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <span class="badge bg-primary fs-6">Team: {{ team.name }}</span>
+    </div>
+</div>
+
+<!-- Team Overview Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                <h5 class="card-title">{{ team.members|length }}</h5>
+                <p class="card-text text-muted">Team Members</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-key fa-2x text-success mb-2"></i>
+                <h5 class="card-title">{{ team.aws_keys|length }}</h5>
+                <p class="card-text text-muted">AWS Keys</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-check-circle fa-2x text-info mb-2"></i>
+                <h5 class="card-title">
+                    {% set active_keys = team.aws_keys|selectattr("status", "equalto", "active")|list %}
+                    {{ active_keys|length }}
+                </h5>
+                <p class="card-text text-muted">Active Keys</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-calendar fa-2x text-warning mb-2"></i>
+                <h5 class="card-title">{{ team.created_at.strftime('%b %Y') }}</h5>
+                <p class="card-text text-muted">Team Created</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Team Information -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-info-circle"></i> Team Information</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Team Name:</dt>
+                    <dd class="col-sm-8">{{ team.name }}</dd>
+                    
+                    <dt class="col-sm-4">Description:</dt>
+                    <dd class="col-sm-8">{{ team.description or 'No description provided' }}</dd>
+                    
+                    <dt class="col-sm-4">Created:</dt>
+                    <dd class="col-sm-8">{{ team.created_at.strftime('%Y-%m-%d %H:%M') }}</dd>
+                    
+                    <dt class="col-sm-4">Leader:</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge bg-success">{{ current_user.username }} (You)</span>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0"><i class="fas fa-users"></i> Team Members</h5>
+                <a href="/team-leader/manage-users" class="btn btn-sm btn-primary">
+                    <i class="fas fa-cog"></i> Manage
+                </a>
+            </div>
+            <div class="card-body">
+                {% if team.members %}
+                <div class="list-group list-group-flush">
+                    {% for member in team.members %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-user"></i> {{ member.username }}
+                            {% if member.id == current_user.id %}
+                                <span class="badge bg-success ms-2">You</span>
+                            {% endif %}
+                        </div>
+                        <small class="text-muted">
+                            {% set user_keys = member.aws_keys|length %}
+                            {{ user_keys }} key{{ 's' if user_keys != 1 else '' }}
+                        </small>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-3">
+                    <i class="fas fa-user-plus fa-2x text-muted mb-2"></i>
+                    <p class="text-muted">No team members yet.</p>
+                    <a href="/team-leader/manage-users" class="btn btn-sm btn-outline-primary">Add Members</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AWS Keys Section -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0"><i class="fas fa-key"></i> Team AWS Keys</h5>
+                <a href="/team-leader/assign-keys" class="btn btn-sm btn-primary">
+                    <i class="fas fa-user-tag"></i> Assign Keys
+                </a>
+            </div>
+            <div class="card-body">
+                {% if team.aws_keys %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Key Name</th>
+                                <th>Access Key</th>
+                                <th>Status</th>
+                                <th>Assigned Users</th>
+                                <th>Last Checked</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for key in team.aws_keys %}
+                            <tr>
+                                <td><strong>{{ key.name }}</strong></td>
+                                <td><code>{{ key.access_key[:10] }}...</code></td>
+                                <td>
+                                    {% if key.status == 'active' %}
+                                        <span class="badge bg-success status-badge">Active</span>
+                                    {% elif key.status == 'invalid' %}
+                                        <span class="badge bg-danger status-badge">Invalid</span>
+                                    {% elif key.status == 'expired' %}
+                                        <span class="badge bg-warning status-badge">Expired</span>
+                                    {% elif key.status == 'no_permissions' %}
+                                        <span class="badge bg-warning status-badge">No Permissions</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary status-badge">Unchecked</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% set team_users = key.users|selectattr("team_id", "equalto", team.id)|list %}
+                                    <span class="badge bg-info">{{ team_users|length }} users</span>
+                                    {% for user in team_users %}
+                                        <small class="d-block">{{ user.username }}</small>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% if key.last_checked %}
+                                        {{ key.last_checked.strftime('%Y-%m-%d %H:%M') }}
+                                    {% else %}
+                                        <span class="text-muted">Never</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-key fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No AWS keys assigned to your team yet.</p>
+                    <p class="text-muted small">Contact your administrator to assign AWS keys to your team.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-bolt"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="d-grid">
+                            <a href="/team-leader/manage-users" class="btn btn-outline-primary">
+                                <i class="fas fa-users"></i> Manage Team Members
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-grid">
+                            <a href="/team-leader/assign-keys" class="btn btn-outline-success">
+                                <i class="fas fa-key"></i> Assign AWS Keys
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-grid">
+                            <a href="/user/create-buckets" class="btn btn-outline-info">
+                                <i class="fas fa-plus-circle"></i> Create Buckets
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

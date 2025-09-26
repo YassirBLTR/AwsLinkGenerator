@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Team Users - AWS S3 Bucket Manager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="fas fa-users"></i> Manage Team Users</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="/team-leader/dashboard" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+        <span class="badge bg-primary fs-6">Team: {{ team.name }}</span>
+    </div>
+</div>
+
+<!-- Current Team Members -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-users"></i> Current Team Members ({{ team.members|length }})</h5>
+            </div>
+            <div class="card-body">
+                {% if team.members %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Role</th>
+                                <th>AWS Keys</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in team.members %}
+                            <tr>
+                                <td>
+                                    <i class="fas fa-user"></i> {{ member.username }}
+                                    {% if member.id == current_user.id %}
+                                        <span class="badge bg-success ms-2">You</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if member.is_team_leader %}
+                                        <span class="badge bg-warning">Team Leader</span>
+                                    {% else %}
+                                        <span class="badge bg-info">Member</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% set user_keys = member.aws_keys|length %}
+                                    <span class="badge bg-secondary">{{ user_keys }} key{{ 's' if user_keys != 1 else '' }}</span>
+                                    {% if user_keys > 0 %}
+                                        <div class="mt-1">
+                                            {% for key in member.aws_keys %}
+                                                {% if key in team.aws_keys %}
+                                                    <small class="d-block text-muted">{{ key.name }}</small>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td>{{ member.created_at.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    {% if member.id != current_user.id and not member.is_team_leader %}
+                                        <form method="post" action="/team-leader/users/{{ member.id }}/remove" style="display: inline;" onsubmit="return confirm('Are you sure you want to remove {{ member.username }} from the team?')">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-user-minus"></i> Remove
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No team members yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Available Users to Add -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-user-plus"></i> Available Users to Add ({{ available_users|length }})</h5>
+            </div>
+            <div class="card-body">
+                {% if available_users %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Current AWS Keys</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in available_users %}
+                            <tr>
+                                <td><i class="fas fa-user"></i> {{ user.username }}</td>
+                                <td>
+                                    {% set user_keys = user.aws_keys|length %}
+                                    <span class="badge bg-secondary">{{ user_keys }} key{{ 's' if user_keys != 1 else '' }}</span>
+                                    {% if user_keys > 0 %}
+                                        <div class="mt-1">
+                                            {% for key in user.aws_keys %}
+                                                <small class="d-block text-muted">{{ key.name }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    <form method="post" action="/team-leader/users/add" style="display: inline;">
+                                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                                        <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Add {{ user.username }} to your team?')">
+                                            <i class="fas fa-user-plus"></i> Add to Team
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-user-plus fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No available users to add.</p>
+                    <p class="text-muted small">All eligible users are already assigned to teams or have special roles.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Team Management Tips -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h6 class="card-title mb-0"><i class="fas fa-info-circle"></i> Team Management Tips</h6>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li><strong>Adding Users:</strong> You can add any user who is not already in a team and is not an admin or team leader.</li>
+                    <li><strong>Removing Users:</strong> You can remove any team member except yourself and other team leaders.</li>
+                    <li><strong>AWS Keys:</strong> When you remove a user from the team, they will lose access to team AWS keys but keep their individual key assignments.</li>
+                    <li><strong>Permissions:</strong> Team members can use AWS keys assigned to the team through the key assignment page.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

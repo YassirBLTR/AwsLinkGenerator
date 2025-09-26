@@ -30,6 +30,7 @@
                             <th>ID</th>
                             <th>Username</th>
                             <th>Role</th>
+                            <th>Team</th>
                             <th>AWS Keys</th>
                             <th>Created Date</th>
                             <th>Actions</th>
@@ -48,10 +49,21 @@
                                     <span class="badge bg-warning text-dark">
                                         <i class="fas fa-crown"></i> Admin
                                     </span>
+                                {% elif user.is_team_leader %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-user-tie"></i> Team Leader
+                                    </span>
                                 {% else %}
                                     <span class="badge bg-info">
                                         <i class="fas fa-user"></i> User
                                     </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if user.team %}
+                                    <span class="badge bg-primary">{{ user.team.name }}</span>
+                                {% else %}
+                                    <span class="text-muted">No Team</span>
                                 {% endif %}
                             </td>
                             <td>
@@ -60,7 +72,7 @@
                             <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
                             <td>
                                 {% if not user.is_admin or user.id != current_user.id %}
-                                    <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete('{{ user.username }}', {{ user.id }})">
+                                    <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete('{{ user.username }}', '{{ user.id }}')">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 {% endif %}
@@ -99,13 +111,26 @@
                         <input type="password" class="form-control" id="password" name="password" required>
                     </div>
                     <div class="mb-3">
+                        <label class="form-label">User Role</label>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="is_admin" name="is_admin" value="true">
-                            <label class="form-check-label" for="is_admin">
+                            <input class="form-check-input" type="radio" id="role_user" name="user_role" value="user" checked>
+                            <label class="form-check-label" for="role_user">
+                                <i class="fas fa-user text-info"></i> Regular User
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="role_team_leader" name="user_role" value="team_leader">
+                            <label class="form-check-label" for="role_team_leader">
+                                <i class="fas fa-user-tie text-success"></i> Team Leader
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="role_admin" name="user_role" value="admin">
+                            <label class="form-check-label" for="role_admin">
                                 <i class="fas fa-crown text-warning"></i> Admin User
                             </label>
                         </div>
-                        <small class="form-text text-muted">Admin users can manage other users and AWS keys.</small>
+                        <small class="form-text text-muted">Choose the appropriate role for this user.</small>
                     </div>
                 </div>
                 <div class="modal-footer">

@@ -17,8 +17,8 @@ import uvicorn
 # sys.stdout.reconfigure(line_buffering=True)
 
 from database import get_db, engine
-from models import Base, User, AWSKey
-from schemas import UserCreate, UserResponse, AWSKeyCreate, AWSKeyResponse, Token
+from models import Base, User, AWSKey, Team
+from schemas import UserCreate, UserResponse, AWSKeyCreate, AWSKeyResponse, Token, TeamCreate, TeamResponse
 from aws_service import AWSService
 from maintenance import maintenance_middleware, maintenance
 
@@ -103,6 +103,20 @@ def get_admin_user(current_user: User = Depends(get_current_user)):
         )
     return current_user
 
+def get_team_leader_user(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not current_user.is_team_leader:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Team leader permissions required"
+        )
+    # Ensure the user has a team assigned
+    if not current_user.team_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No team assigned"
+        )
+    return current_user
+
 # Routes
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
@@ -128,6 +142,8 @@ async def login(request: Request, username: str = Form(...), password: str = For
     
     if user.is_admin:
         response = RedirectResponse(url="/admin/dashboard", status_code=302)
+    elif user.is_team_leader:
+        response = RedirectResponse(url="/team-leader/dashboard", status_code=302)
     else:
         response = RedirectResponse(url="/user/dashboard", status_code=302)
     
@@ -166,7 +182,7 @@ async def create_user(
     request: Request,
     username: str = Form(...),
     password: str = Form(...),
-    is_admin: bool = Form(False),
+    user_role: str = Form("user"),
     current_user: User = Depends(get_admin_user),
     db: Session = Depends(get_db)
 ):
@@ -181,11 +197,183 @@ async def create_user(
         })
     
     hashed_password = get_password_hash(password)
-    db_user = User(username=username, hashed_password=hashed_password, is_admin=is_admin)
+    
+    # Set user roles based on selection
+    is_admin = user_role == "admin"
+    is_team_leader = user_role == "team_leader"
+    
+    db_user = User(
+        username=username, 
+        hashed_password=hashed_password, 
+        is_admin=is_admin,
+        is_team_leader=is_team_leader
+    )
     db.add(db_user)
     db.commit()
     
     return RedirectResponse(url="/admin/users", status_code=302)
+
+# Admin Team Management Routes
+@app.get("/admin/teams", response_class=HTMLResponse)
+async def admin_teams(request: Request, current_user: User = Depends(get_admin_user), db: Session = Depends(get_db)):
+    teams = db.query(Team).all()
+    users = db.query(User).filter(User.is_admin == False).all()
+    keys = db.query(AWSKey).all()
+    return templates.TemplateResponse("admin_teams.html", {
+        "request": request,
+        "current_user": current_user,
+        "teams": teams,
+        "users": users,
+        "keys": keys
+    })
+
+@app.post("/admin/teams/create")
+async def create_team(
+    request: Request,
+    name: str = Form(...),
+    description: str = Form(""),
+    leader_id: str = Form(""),
+    current_user: User = Depends(get_admin_user),
+    db: Session = Depends(get_db)
+):
+    # Check if team name exists
+    if db.query(Team).filter(Team.name == name).first():
+        teams = db.query(Team).all()
+        users = db.query(User).filter(User.is_admin == False).all()
+        keys = db.query(AWSKey).all()
+        return templates.TemplateResponse("admin_teams.html", {
+            "request": request,
+            "current_user": current_user,
+            "teams": teams,
+            "users": users,
+            "keys": keys,
+            "error": "Team name already exists"
+        })
+    
+    # Parse leader_id
+    parsed_leader_id = None
+    if leader_id and leader_id.strip() and leader_id != "0":
+        try:
+            parsed_leader_id = int(leader_id)
+        except ValueError:
+            parsed_leader_id = None
+    
+    # Create team
+    db_team = Team(
+        name=name.strip(),
+        description=description.strip() if description else None,
+        leader_id=parsed_leader_id
+    )
+    db.add(db_team)
+    db.commit()
+    
+    # If a leader was assigned, update their is_team_leader status and team_id
+    if parsed_leader_id:
+        leader = db.query(User).filter(User.id == parsed_leader_id).first()
+        if leader:
+            leader.is_team_leader = True
+            leader.team_id = db_team.id
+            db.commit()
+    
+    return RedirectResponse(url="/admin/teams", status_code=302)
+
+@app.post("/admin/teams/{team_id}/assign-leader")
+async def assign_team_leader(
+    team_id: int,
+    user_id: int = Form(...),
+    current_user: User = Depends(get_admin_user),
+    db: Session = Depends(get_db)
+):
+    team = db.query(Team).filter(Team.id == team_id).first()
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Remove previous leader if exists
+    if team.leader_id:
+        old_leader = db.query(User).filter(User.id == team.leader_id).first()
+        if old_leader:
+            old_leader.is_team_leader = False
+            old_leader.team_id = None
+    
+    # Assign new leader
+    team.leader_id = user_id
+    user.is_team_leader = True
+    user.team_id = team_id
+    db.commit()
+    
+    return RedirectResponse(url="/admin/teams", status_code=302)
+
+@app.post("/admin/teams/{team_id}/assign-user")
+async def assign_user_to_team(
+    team_id: int,
+    user_id: int = Form(...),
+    current_user: User = Depends(get_admin_user),
+    db: Session = Depends(get_db)
+):
+    team = db.query(Team).filter(Team.id == team_id).first()
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Assign user to team
+    user.team_id = team_id
+    db.commit()
+    
+    return RedirectResponse(url="/admin/teams", status_code=302)
+
+@app.post("/admin/teams/{team_id}/assign-key")
+async def assign_key_to_team(
+    team_id: int,
+    key_id: int = Form(...),
+    current_user: User = Depends(get_admin_user),
+    db: Session = Depends(get_db)
+):
+    team = db.query(Team).filter(Team.id == team_id).first()
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    key = db.query(AWSKey).filter(AWSKey.id == key_id).first()
+    if not key:
+        raise HTTPException(status_code=404, detail="Key not found")
+    
+    # Check if already assigned
+    if key not in team.aws_keys:
+        team.aws_keys.append(key)
+        db.commit()
+    
+    return RedirectResponse(url="/admin/teams", status_code=302)
+
+@app.post("/admin/teams/{team_id}/delete")
+async def delete_team(
+    team_id: int,
+    current_user: User = Depends(get_admin_user),
+    db: Session = Depends(get_db)
+):
+    team = db.query(Team).filter(Team.id == team_id).first()
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    # Remove team leader status from leader
+    if team.leader_id:
+        leader = db.query(User).filter(User.id == team.leader_id).first()
+        if leader:
+            leader.is_team_leader = False
+            leader.team_id = None
+    
+    # Remove team_id from all members
+    for member in team.members:
+        member.team_id = None
+    
+    db.delete(team)
+    db.commit()
+    return RedirectResponse(url="/admin/teams", status_code=302)
 
 @app.get("/admin/keys", response_class=HTMLResponse)
 async def admin_keys(request: Request, current_user: User = Depends(get_admin_user), db: Session = Depends(get_db)):
@@ -573,6 +761,172 @@ async def user_unassign_key(
     db.commit()
     
     return RedirectResponse(url="/user/dashboard", status_code=302)
+
+# Team Leader Routes
+@app.get("/team-leader/dashboard", response_class=HTMLResponse)
+async def team_leader_dashboard(request: Request, current_user: User = Depends(get_team_leader_user), db: Session = Depends(get_db)):
+    # Get team with members and keys
+    from sqlalchemy.orm import joinedload
+    team = db.query(Team).options(
+        joinedload(Team.members),
+        joinedload(Team.aws_keys)
+    ).filter(Team.id == current_user.team_id).first()
+    
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    return templates.TemplateResponse("team_leader_dashboard.html", {
+        "request": request,
+        "current_user": current_user,
+        "team": team
+    })
+
+@app.get("/team-leader/manage-users", response_class=HTMLResponse)
+async def team_leader_manage_users(request: Request, current_user: User = Depends(get_team_leader_user), db: Session = Depends(get_db)):
+    team = db.query(Team).filter(Team.id == current_user.team_id).first()
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    # Get all non-admin users not in any team
+    available_users = db.query(User).filter(
+        User.is_admin == False,
+        User.team_id == None,
+        User.is_team_leader == False
+    ).all()
+    
+    return templates.TemplateResponse("team_leader_manage_users.html", {
+        "request": request,
+        "current_user": current_user,
+        "team": team,
+        "available_users": available_users
+    })
+
+@app.post("/team-leader/users/add")
+async def team_leader_add_user(
+    user_id: int = Form(...),
+    current_user: User = Depends(get_team_leader_user),
+    db: Session = Depends(get_db)
+):
+    team = db.query(Team).filter(Team.id == current_user.team_id).first()
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Check if user is available (not admin, not team leader, not in another team)
+    if user.is_admin or user.is_team_leader or user.team_id:
+        raise HTTPException(status_code=400, detail="User is not available")
+    
+    # Add user to team
+    user.team_id = current_user.team_id
+    db.commit()
+    
+    return RedirectResponse(url="/team-leader/manage-users", status_code=302)
+
+@app.post("/team-leader/users/{user_id}/remove")
+async def team_leader_remove_user(
+    user_id: int,
+    current_user: User = Depends(get_team_leader_user),
+    db: Session = Depends(get_db)
+):
+    team = db.query(Team).filter(Team.id == current_user.team_id).first()
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Check if user is in the team leader's team
+    if user.team_id != current_user.team_id:
+        raise HTTPException(status_code=403, detail="User is not in your team")
+    
+    # Don't allow removing yourself
+    if user.id == current_user.id:
+        raise HTTPException(status_code=400, detail="Cannot remove yourself from team")
+    
+    # Remove user from team
+    user.team_id = None
+    db.commit()
+    
+    return RedirectResponse(url="/team-leader/manage-users", status_code=302)
+
+@app.get("/team-leader/assign-keys", response_class=HTMLResponse)
+async def team_leader_assign_keys(request: Request, current_user: User = Depends(get_team_leader_user), db: Session = Depends(get_db)):
+    team = db.query(Team).filter(Team.id == current_user.team_id).first()
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    # Get team members (excluding the leader)
+    team_members = db.query(User).filter(
+        User.team_id == current_user.team_id,
+        User.id != current_user.id
+    ).all()
+    
+    return templates.TemplateResponse("team_leader_assign_keys.html", {
+        "request": request,
+        "current_user": current_user,
+        "team": team,
+        "team_members": team_members
+    })
+
+@app.post("/team-leader/keys/{key_id}/assign")
+async def team_leader_assign_key(
+    key_id: int,
+    user_id: int = Form(...),
+    current_user: User = Depends(get_team_leader_user),
+    db: Session = Depends(get_db)
+):
+    team = db.query(Team).filter(Team.id == current_user.team_id).first()
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    # Check if key belongs to the team
+    key = db.query(AWSKey).filter(AWSKey.id == key_id).first()
+    if not key or key not in team.aws_keys:
+        raise HTTPException(status_code=404, detail="Key not found or not assigned to your team")
+    
+    # Check if user is in the team
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user or user.team_id != current_user.team_id:
+        raise HTTPException(status_code=404, detail="User not found or not in your team")
+    
+    # Assign key to user
+    if user not in key.users:
+        key.users.append(user)
+        db.commit()
+    
+    return RedirectResponse(url="/team-leader/assign-keys", status_code=302)
+
+@app.post("/team-leader/keys/{key_id}/unassign/{user_id}")
+async def team_leader_unassign_key(
+    key_id: int,
+    user_id: int,
+    current_user: User = Depends(get_team_leader_user),
+    db: Session = Depends(get_db)
+):
+    team = db.query(Team).filter(Team.id == current_user.team_id).first()
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    # Check if key belongs to the team
+    key = db.query(AWSKey).filter(AWSKey.id == key_id).first()
+    if not key or key not in team.aws_keys:
+        raise HTTPException(status_code=404, detail="Key not found or not assigned to your team")
+    
+    # Check if user is in the team
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user or user.team_id != current_user.team_id:
+        raise HTTPException(status_code=404, detail="User not found or not in your team")
+    
+    # Unassign key from user
+    if user in key.users:
+        key.users.remove(user)
+        db.commit()
+    
+    return RedirectResponse(url="/team-leader/assign-keys", status_code=302)
 
 @app.post("/admin/keys/{key_id}/refresh-stats")
 async def refresh_key_stats(

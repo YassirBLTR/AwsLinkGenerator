@@ -56,6 +56,8 @@
                             <div class="text-white fw-bold">{{ current_user.username }}</div>
                             {% if current_user.is_admin %}
                                 <span class="badge bg-warning text-dark mt-1">Admin</span>
+                            {% elif current_user.is_team_leader %}
+                                <span class="badge bg-success mt-1">Team Leader</span>
                             {% else %}
                                 <span class="badge bg-info mt-1">User</span>
                             {% endif %}
@@ -79,8 +81,34 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link text-white" href="/admin/teams">
+                                        <i class="fas fa-users"></i> Manage Teams
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link text-white" href="/admin/maintenance">
                                         <i class="fas fa-tools"></i> Maintenance Mode
+                                    </a>
+                                </li>
+                            {% elif current_user.is_team_leader %}
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" href="/team-leader/dashboard">
+                                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" href="/team-leader/manage-users">
+                                        <i class="fas fa-users"></i> Manage Users
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" href="/team-leader/assign-keys">
+                                        <i class="fas fa-key"></i> Assign Keys
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" href="/user/create-buckets">
+                                        <i class="fas fa-plus-circle"></i> Create Buckets
                                     </a>
                                 </li>
                             {% else %}
