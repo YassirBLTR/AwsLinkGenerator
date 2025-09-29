@@ -4,6 +4,7 @@ import string
 import os
 import datetime
 import json
+import uuid
 from botocore.exceptions import ClientError, NoCredentialsError, EndpointConnectionError
 from typing import List, Dict, Any, Tuple, Optional
 from models import AWSKey
@@ -189,7 +190,7 @@ class AWSService:
         image_bytes, file_ext, content_type = self._prepare_image_data(image_file, image_content)
         
         if image_bytes is None:
-            print("WARNING: No valid image provided - no URLs will be generated")
+            print("DEBUG: No image provided - buckets will be created with HTML only")
         else:
             print(f"DEBUG: Successfully prepared image data: {len(image_bytes)} bytes, ext: {file_ext}, content_type: {content_type}")
 
@@ -233,7 +234,7 @@ class AWSService:
                     # Create and configure bucket
                     self._create_and_configure_bucket(s3, bucket_name, region)
                     key_result["buckets_created"] += 1
-                    # Upload image and then HTML if image provided
+                    # Upload image if provided, then always upload HTML
                     if image_bytes:
                         print(f"DEBUG: Uploading image to bucket {bucket_name}")
                         print(f"DEBUG: Image bytes length: {len(image_bytes)}")
@@ -244,24 +245,226 @@ class AWSService:
                         image_url = self._upload_image_to_bucket(s3, bucket_name, region, image_bytes, file_ext, content_type)
                         if image_url:
                             print(f"DEBUG: Successfully uploaded image, URL: {image_url}")
-                            key_result["urls"].append({"type": "image", "url": image_url})
-                            html_url = self._upload_html_file(s3, bucket_name, region)
-                            if html_url:
-                                print(f"DEBUG: Successfully uploaded HTML file, URL: {html_url}")
-                                key_result["urls"].append({"type": "html", "url": html_url})
-                            else:
-                                print(f"WARNING: Failed to upload HTML file for bucket {bucket_name}")
+                            key_result["urls"].append({"type": "image", "url": image_url, "bucket_name": bucket_name})
                         else:
                             print(f"ERROR: Failed to upload image to bucket {bucket_name}")
                             key_result["errors"].append(f"Failed to upload image to bucket {bucket_name}")
                     else:
-                        print(f"WARNING: No image bytes available for bucket {bucket_name}")
-                        key_result["errors"].append("No image data provided for upload")
+                        print(f"DEBUG: No image provided - creating bucket with HTML only")
+                    
+                    # Always upload HTML file (whether image was provided or not)
+                    html_url = self._upload_html_file(s3, bucket_name, region)
+                    if html_url:
+                        print(f"DEBUG: Successfully uploaded HTML file, URL: {html_url}")
+                        key_result["urls"].append({"type": "html", "url": html_url, "bucket_name": bucket_name})
+                    else:
+                        print(f"WARNING: Failed to upload HTML file for bucket {bucket_name}")
+                        key_result["errors"].append(f"Failed to upload HTML file to bucket {bucket_name}")
+                    
+                    # Also add bucket name to image URL if it exists
+                    for url_info in key_result["urls"]:
+                        if "bucket_name" not in url_info:
+                            url_info["bucket_name"] = bucket_name
                 except Exception as bucket_error:
                     key_result["errors"].append(f"Failed to create bucket {i+1}: {str(bucket_error)}")
         except Exception as key_error:
             key_result["errors"].append(f"Failed to process key: {str(key_error)}")
         return key_result
+
+    def delete_bucket(self, aws_key: AWSKey, bucket_name: str, region: str) -> Dict[str, Any]:
+        """Delete a specific S3 bucket"""
+        result = {
+            "success": False,
+            "bucket_name": bucket_name,
+            "message": "",
+            "error": None
+        }
+        
+        try:
+            # Create S3 client
+            s3 = boto3.client(
+                's3',
+                aws_access_key_id=aws_key.access_key,
+                aws_secret_access_key=aws_key.secret_key,
+                region_name=region
+            )
+            
+            print(f"DEBUG: Attempting to delete bucket {bucket_name} in region {region}")
+            
+            # First, delete all objects in the bucket
+            try:
+                # List all objects in the bucket
+                response = s3.list_objects_v2(Bucket=bucket_name)
+                
+                if 'Contents' in response:
+                    # Delete all objects
+                    objects_to_delete = [{'Key': obj['Key']} for obj in response['Contents']]
+                    s3.delete_objects(
+                        Bucket=bucket_name,
+                        Delete={'Objects': objects_to_delete}
+                    )
+                    print(f"DEBUG: Deleted {len(objects_to_delete)} objects from bucket {bucket_name}")
+                else:
+                    print(f"DEBUG: Bucket {bucket_name} is already empty")
+                
+            except Exception as e:
+                print(f"WARNING: Error deleting objects from bucket {bucket_name}: {str(e)}")
+                # Continue with bucket deletion even if object deletion fails
+            
+            # Now delete the bucket itself
+            s3.delete_bucket(Bucket=bucket_name)
+            
+            result["success"] = True
+            result["message"] = f"Successfully deleted bucket {bucket_name}"
+            print(f"DEBUG: Successfully deleted bucket {bucket_name}")
+            
+        except ClientError as e:
+            error_code = e.response['Error']['Code']
+            if error_code == 'NoSuchBucket':
+                result["success"] = True  # Bucket already doesn't exist
+                result["message"] = f"Bucket {bucket_name} was already deleted"
+            elif error_code == 'BucketNotEmpty':
+                result["error"] = f"Bucket {bucket_name} is not empty. Please delete all objects first."
+            elif error_code == 'AccessDenied':
+                result["error"] = f"Access denied when trying to delete bucket {bucket_name}"
+            else:
+                result["error"] = f"AWS Error: {e.response['Error']['Message']}"
+            print(f"ERROR: {result.get('error', result.get('message'))}")
+            
+        except Exception as e:
+            result["error"] = f"Unexpected error deleting bucket {bucket_name}: {str(e)}"
+            print(f"ERROR: {result['error']}")
+        
+        return result
+
+    def check_key_status_only(self, access_key: str, secret_key: str):
+        """Check AWS key status and bucket limits without creating any buckets"""
+        try:
+            # Create S3 client
+            s3 = boto3.client(
+                's3',
+                aws_access_key_id=access_key,
+                aws_secret_access_key=secret_key,
+                region_name='us-east-1'
+            )
+            
+            # Test basic connectivity and permissions
+            try:
+                # Try to list buckets to verify credentials
+                response = s3.list_buckets()
+                current_buckets = response.get('Buckets', [])
+                current_count = len(current_buckets)
+                
+                # Try to get account limits (this doesn't consume anything)
+                try:
+                    # Test if we can perform bucket operations by checking bucket policy on a non-existent bucket
+                    # This will fail but tell us about permissions
+                    test_bucket_name = f"test-permissions-check-{uuid.uuid4().hex[:8]}"
+                    try:
+                        s3.get_bucket_policy(Bucket=test_bucket_name)
+                    except ClientError as e:
+                        error_code = e.response['Error']['Code']
+                        if error_code == 'NoSuchBucket':
+                            # Good - we have permissions to check bucket policies
+                            can_create = True
+                        elif error_code in ['AccessDenied', 'InvalidAccessKeyId', 'SignatureDoesNotMatch']:
+                            can_create = False
+                        else:
+                            can_create = True  # Assume we can create if it's another error
+                    
+                    # Estimate bucket limit (AWS default is 100, but we'll be conservative)
+                    bucket_limit = 100
+                    buckets_remaining = max(0, bucket_limit - current_count)
+                    
+                    # Determine status
+                    if current_count >= bucket_limit:
+                        status = "no_permissions"  # Reusing this status for "limit reached"
+                        permissions_error = f"Bucket limit reached ({current_count}/{bucket_limit})"
+                    elif can_create:
+                        status = "active"
+                        permissions_error = None
+                    else:
+                        status = "no_permissions"
+                        permissions_error = "Insufficient permissions for bucket operations"
+                    
+                    return {
+                        "status": status,
+                        "bucket_count": current_count,
+                        "bucket_limit": bucket_limit,
+                        "buckets_remaining": buckets_remaining,
+                        "can_create_buckets": can_create and current_count < bucket_limit,
+                        "permissions_error": permissions_error,
+                        "connection_error": None
+                    }
+                    
+                except Exception as perm_error:
+                    # If we can't check permissions, assume limited access
+                    bucket_limit = 100
+                    buckets_remaining = max(0, bucket_limit - current_count)
+                    
+                    return {
+                        "status": "no_permissions",
+                        "bucket_count": current_count,
+                        "bucket_limit": bucket_limit,
+                        "buckets_remaining": buckets_remaining,
+                        "can_create_buckets": False,
+                        "permissions_error": f"Limited permissions: {str(perm_error)[:100]}",
+                        "connection_error": None
+                    }
+                    
+            except ClientError as e:
+                error_code = e.response['Error']['Code']
+                if error_code in ['InvalidAccessKeyId', 'SignatureDoesNotMatch']:
+                    return {
+                        "status": "invalid",
+                        "bucket_count": 0,
+                        "bucket_limit": 0,
+                        "buckets_remaining": 0,
+                        "can_create_buckets": False,
+                        "permissions_error": None,
+                        "connection_error": "Invalid AWS credentials"
+                    }
+                elif error_code == 'TokenRefreshRequired':
+                    return {
+                        "status": "expired",
+                        "bucket_count": 0,
+                        "bucket_limit": 0,
+                        "buckets_remaining": 0,
+                        "can_create_buckets": False,
+                        "permissions_error": None,
+                        "connection_error": "AWS credentials expired"
+                    }
+                elif error_code == 'NotSignedUp':
+                    return {
+                        "status": "no_permissions",
+                        "bucket_count": 0,
+                        "bucket_limit": 0,
+                        "buckets_remaining": 0,
+                        "can_create_buckets": False,
+                        "permissions_error": "Account not signed up for S3 service",
+                        "connection_error": None
+                    }
+                else:
+                    return {
+                        "status": "invalid",
+                        "bucket_count": 0,
+                        "bucket_limit": 0,
+                        "buckets_remaining": 0,
+                        "can_create_buckets": False,
+                        "permissions_error": None,
+                        "connection_error": f"AWS Error: {str(e)}"
+                    }
+                    
+        except Exception as e:
+            return {
+                "status": "invalid",
+                "bucket_count": 0,
+                "bucket_limit": 0,
+                "buckets_remaining": 0,
+                "can_create_buckets": False,
+                "permissions_error": None,
+                "connection_error": f"Connection failed: {str(e)}"
+            }
 
     def _create_and_configure_bucket(self, s3, bucket_name: str, region: str):
         """Create bucket and configure public access settings"""

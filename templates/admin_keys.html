@@ -5,9 +5,14 @@
 {% block content %}
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2"><i class="fas fa-key"></i> Manage AWS Keys</h1>
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createKeyModal">
-        <i class="fas fa-plus"></i> Add AWS Key
-    </button>
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createKeyModal">
+            <i class="fas fa-plus"></i> Add Single Key
+        </button>
+        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#bulkCreateKeyModal">
+            <i class="fas fa-upload"></i> Bulk Add Keys
+        </button>
+    </div>
 </div>
 
 <!-- AWS Keys Table -->
@@ -26,7 +31,7 @@
                             <th>Access Key</th>
                             <th>Status</th>
                             <th>Bucket Stats</th>
-                            <th>Assigned User</th>
+                            <th>Assigned Teams</th>
                             <th>Created Date</th>
                             <th>Actions</th>
                         </tr>
@@ -81,7 +86,7 @@
                                             {% endif %}
                                         </div>
                                         <div class="progress mt-1" style="height: 4px;">
-                                            {% set percentage = (key_stats.bucket_count / key_stats.bucket_limit * 100) %}
+                                            {% set percentage = (key_stats.bucket_count / key_stats.bucket_limit * 100) if key_stats.bucket_limit > 0 else 0 %}
                                             <div class="progress-bar {% if percentage > 80 %}bg-danger{% elif percentage > 60 %}bg-warning{% else %}bg-success{% endif %}" 
                                                  style="width: {{ percentage }}%"></div>
                                         </div>
@@ -104,23 +109,15 @@
                                 {% endif %}
                             </td>
                             <td>
-                                {% if key.users %}
+                                {% if key.teams %}
                                     <div class="d-flex flex-wrap gap-1">
-                                        {% for user in key.users %}
-                                            <div class="d-flex align-items-center">
-                                                <span class="badge bg-success me-1">
-                                                    <i class="fas fa-user"></i> {{ user.username }}
-                                                </span>
-                                                <button class="btn btn-sm btn-outline-danger p-0" 
-                                                        style="width: 20px; height: 20px; font-size: 10px;"
-                                                        onclick="unassignUserFromKey({{ key.id }}, {{ user.id }}, '{{ user.username }}', '{{ key.name }}')"
-                                                        title="Remove {{ user.username }} from {{ key.name }}">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            </div>
+                                        {% for team in key.teams %}
+                                            <span class="badge bg-primary">
+                                                <i class="fas fa-users"></i> {{ team.name }}
+                                            </span>
                                         {% endfor %}
                                     </div>
-                                    <small class="text-muted">{{ key.users|length }} user(s) assigned</small>
+                                    <small class="text-muted">{{ key.teams|length }} team(s) assigned</small>
                                 {% else %}
                                     <span class="badge bg-warning text-dark">
                                         <i class="fas fa-exclamation-triangle"></i> Unassigned
@@ -129,55 +126,15 @@
                             </td>
                             <td>{{ key.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
                             <td>
-                                <button type="button" class="btn btn-sm btn-outline-info me-1" onclick="refreshStats({{ key.id }})">
-                                    <i class="fas fa-sync"></i> Refresh
+                                <button type="button" class="btn btn-sm btn-outline-info me-1" onclick="checkKeyStatus('{{ key.id }}')">
+                                    <i class="fas fa-check-circle"></i> Check
                                 </button>
-                                <button type="button" class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#assignKeyModal{{ key.id }}">
-                                    <i class="fas fa-link"></i> Assign
-                                </button>
-                                {% if key.users %}
-                                    <button type="button" class="btn btn-sm btn-outline-warning me-1" onclick="unassignAllUsers({{ key.id }}, '{{ key.name }}')">
-                                        <i class="fas fa-unlink"></i> Unassign All
-                                    </button>
-                                {% endif %}
-                                <button class="btn btn-sm btn-outline-danger ms-1" onclick="confirmDeleteKey('{{ key.name }}', {{ key.id }})">
+                                <button class="btn btn-sm btn-outline-danger ms-1" onclick="confirmDeleteKey('{{ key.name }}', '{{ key.id }}')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
                         </tr>
 
-                        <!-- Assign Key Modal for each key -->
-                        <div class="modal fade" id="assignKeyModal{{ key.id }}" tabindex="-1">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title"><i class="fas fa-link"></i> Assign Key: {{ key.name }}</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                    </div>
-                                    <form method="post" action="/admin/keys/{{ key.id }}/assign">
-                                        <div class="modal-body">
-                                            <div class="mb-3">
-                                                <label for="user_id{{ key.id }}" class="form-label">Select User</label>
-                                                <select class="form-select" id="user_id{{ key.id }}" name="user_id" required>
-                                                    <option value="">Choose a user...</option>
-                                                    {% for user in users %}
-                                                        {% if not user.is_admin %}
-                                                            <option value="{{ user.id }}">{{ user.username }}</option>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                            <button type="submit" class="btn btn-primary">
-                                                <i class="fas fa-link"></i> Assign Key
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -225,7 +182,7 @@
                     <span class="badge bg-info text-dark me-3">
                         <i class="fas fa-exclamation-triangle"></i> Limited
                     </span>
-                    <span class="small">Key is valid but lacks bucket creation permissions</span>
+                    <span class="small">Key is valid but lacks permissions or account not signed up for S3</span>
                 </div>
                 <div class="d-flex align-items-center mb-2">
                     <span class="badge bg-secondary me-3">
@@ -237,7 +194,7 @@
         </div>
         <div class="alert alert-info mt-3 mb-0">
             <i class="fas fa-lightbulb"></i>
-            <strong>Admin Tip:</strong> Use the "Check" button to validate any key's current status and permissions. This helps ensure users have working credentials.
+            <strong>Admin Tip:</strong> Use the "Check" button to verify key status and bucket limits without consuming bucket creation attempts. This provides real-time status updates safely.
         </div>
     </div>
 </div>
@@ -252,6 +209,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form method="post" action="/admin/keys/create">
+                <input type="hidden" name="creation_type" value="single">
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="name" class="form-label">Key Name</label>
@@ -265,22 +223,61 @@
                         <label for="secret_key" class="form-label">AWS Secret Key</label>
                         <input type="password" class="form-control" id="secret_key" name="secret_key" required>
                     </div>
-                    <div class="mb-3">
-                        <label for="user_id" class="form-label">Assign to User (Optional)</label>
-                        <select class="form-select" id="user_id" name="user_id">
-                            <option value="">Leave unassigned</option>
-                            {% for user in users %}
-                                {% if not user.is_admin %}
-                                    <option value="{{ user.id }}">{{ user.username }}</option>
-                                {% endif %}
-                            {% endfor %}
-                        </select>
-                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-plus"></i> Add Key
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Create Keys Modal -->
+<div class="modal fade" id="bulkCreateKeyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-upload"></i> Bulk Add AWS Keys</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="/admin/keys/create">
+                <input type="hidden" name="creation_type" value="bulk">
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Format:</strong> Enter keys in JSON-like format: <code>{access_key,secret_key}</code>
+                        <br><small>Example: <code>{AKIAIOSFODNN7EXAMPLE,wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY}</code></small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="bulk_keys" class="form-label">AWS Keys Data</label>
+                        <textarea class="form-control" id="bulk_keys" name="bulk_keys" rows="10" 
+                                  placeholder="[
+{AKIAIOSFODNN7EXAMPLE,wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY},
+{AKIAI44QH8DHBEXAMPLE,je7MtGbClwBF/2Zp9Utk/h3yCo8nvbEXAMPLEKEY},
+{AKIAIOSFODNN7EXAMPLE,wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY}
+]" required></textarea>
+                        <div class="form-text">
+                            <i class="fas fa-lightbulb"></i> 
+                            <strong>Tips:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li>Each entry should be in format: <code>{access_key,secret_key}</code></li>
+                                <li>Key names will be randomly generated</li>
+                                <li>Access keys must be unique</li>
+                                <li>Brackets [ ] and commas between entries are optional</li>
+                                <li>Empty lines will be ignored</li>
+                                <li>All keys will be validated before creation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-upload"></i> Create Keys
                     </button>
                 </div>
             </form>
@@ -301,25 +298,6 @@ function confirmDeleteKey(keyName, keyId) {
     }
 }
 
-function unassignUserFromKey(keyId, userId, username, keyName) {
-    if (confirm(`Are you sure you want to remove "${username}" from key "${keyName}"?`)) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/admin/keys/${keyId}/unassign/${userId}`;
-        document.body.appendChild(form);
-        form.submit();
-    }
-}
-
-function unassignAllUsers(keyId, keyName) {
-    if (confirm(`Are you sure you want to remove ALL users from key "${keyName}"?`)) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/admin/keys/${keyId}/unassign-all`;
-        document.body.appendChild(form);
-        form.submit();
-    }
-}
 
 function validateKey(keyId) {
     if (confirm('This will test the AWS key by attempting to create a test bucket. Continue?')) {
@@ -331,11 +309,11 @@ function validateKey(keyId) {
     }
 }
 
-function refreshStats(keyId) {
-    if (confirm('This will refresh the bucket statistics and validate the key. Continue?')) {
+function checkKeyStatus(keyId) {
+    if (confirm('This will check the AWS key status and bucket limits without creating any buckets. Continue?')) {
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = `/admin/keys/${keyId}/refresh-stats`;
+        form.action = `/admin/keys/${keyId}/check`;
         document.body.appendChild(form);
         form.submit();
     }

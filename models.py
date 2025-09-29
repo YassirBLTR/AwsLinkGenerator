@@ -55,6 +55,9 @@ class User(Base):
     
     # Many-to-one relationship with team
     team = relationship("Team", back_populates="members", foreign_keys=[team_id])
+    
+    # One-to-many relationship with bucket history
+    bucket_history = relationship("BucketHistory", back_populates="user")
 
 class AWSKey(Base):
     __tablename__ = "aws_keys"
@@ -73,3 +76,24 @@ class AWSKey(Base):
     
     # Many-to-many relationship with teams
     teams = relationship("Team", secondary=team_aws_key_association, back_populates="aws_keys")
+    
+    # One-to-many relationship with bucket history
+    bucket_history = relationship("BucketHistory", back_populates="aws_key")
+
+class BucketHistory(Base):
+    __tablename__ = "bucket_history"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    aws_key_id = Column(Integer, ForeignKey('aws_keys.id'), nullable=False)
+    bucket_name = Column(String, nullable=False)
+    region = Column(String, nullable=False)
+    image_url = Column(String, nullable=True)
+    html_url = Column(String, nullable=True)
+    creation_status = Column(String, nullable=False)  # success, failed
+    error_message = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Relationships
+    user = relationship("User", back_populates="bucket_history")
+    aws_key = relationship("AWSKey", back_populates="bucket_history")

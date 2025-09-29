@@ -82,10 +82,13 @@
 
                         <div class="mb-4">
                             <label for="image" class="form-label">
-                                <i class="fas fa-image"></i> Upload Image to place in each bucket
+                                <i class="fas fa-image"></i> Upload Image to place in each bucket <span class="text-muted">(Optional)</span>
                             </label>
-                            <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
-                            <div class="form-text">This image will be uploaded to every bucket created and its public URL will be included in the results.</div>
+                            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                            <div class="form-text">
+                                <strong>Optional:</strong> If you upload an image, it will be placed in every bucket created and its public URL will be included in the results. 
+                                If no image is uploaded, buckets will be created with only an HTML file.
+                            </div>
                         </div>
 
                         <div class="mb-4">

@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+
+{% block title %}Team Bucket History - AWS S3 Manager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="fas fa-history"></i> Team Bucket Creation History</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <span class="badge bg-info fs-6">{{ history_records|length }} Team Records</span>
+        </div>
+    </div>
+</div>
+
+<!-- Team Info -->
+{% if current_user.team %}
+<div class="alert alert-info mb-4">
+    <i class="fas fa-users"></i>
+    <strong>Team:</strong> {{ current_user.team.name }}
+    <span class="ms-3">
+        <i class="fas fa-user-friends"></i>
+        <strong>Members:</strong> {{ team_members|length }}
+    </span>
+</div>
+{% endif %}
+
+<!-- AWS Keys Bucket Limits -->
+{% if team_aws_keys %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0"><i class="fas fa-key"></i> Team AWS Keys - Bucket Limits</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% for key_info in team_aws_keys %}
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card border-left-primary">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="card-title">{{ key_info.key.name }}</h6>
+                                <small class="text-muted">{{ key_info.key.access_key[:10] }}...</small>
+                            </div>
+                            <div class="text-end">
+                                {% if key_info.status == "error" %}
+                                    <span class="badge bg-danger">Error</span>
+                                {% elif key_info.remaining is not none and key_info.remaining <= 0 %}
+                                    <span class="badge bg-danger">Full</span>
+                                {% elif key_info.remaining is not none and key_info.remaining <= 5 %}
+                                    <span class="badge bg-warning">Low</span>
+                                {% elif key_info.remaining is not none %}
+                                    <span class="badge bg-success">OK</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Unknown</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <div class="d-flex justify-content-between">
+                                <span>Current:</span>
+                                <strong>{{ key_info.current_count }}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Limit:</span>
+                                <strong>{{ key_info.limit }}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Remaining:</span>
+                                <strong class="{% if key_info.remaining is not none and key_info.remaining <= 0 %}text-danger{% elif key_info.remaining is not none and key_info.remaining <= 5 %}text-warning{% elif key_info.remaining is not none %}text-success{% else %}text-muted{% endif %}">
+                                    {{ key_info.remaining if key_info.remaining is not none else 'Unknown' }}
+                                </strong>
+                            </div>
+                        </div>
+                        {% if key_info.status == "error" %}
+                        <div class="mt-2">
+                            <small class="text-danger">{{ key_info.error }}</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- History Table -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0"><i class="fas fa-list"></i> Team Bucket Creation Activity</h5>
+    </div>
+    <div class="card-body">
+        {% if history_records %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date/Time</th>
+                            <th>Team Member</th>
+                            <th>AWS Key</th>
+                            <th>Bucket Name</th>
+                            <th>Region</th>
+                            <th>Status</th>
+                            <th>URLs</th>
+                            <th>Error</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in history_records %}
+                        <tr>
+                            <td>
+                                <small class="text-muted">{{ record.created_at.strftime('%Y-%m-%d') }}</small><br>
+                                <strong>{{ record.created_at.strftime('%H:%M:%S') }}</strong>
+                            </td>
+                            <td>
+                                <i class="fas fa-user text-muted me-1"></i>
+                                {{ record.user.username }}
+                                {% if record.user.id == current_user.id %}
+                                    <span class="badge bg-warning text-dark ms-1">You</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <i class="fas fa-key text-muted me-1"></i>
+                                {{ record.aws_key.name }}
+                                <br><small class="text-muted">{{ record.aws_key.access_key[:10] }}...</small>
+                            </td>
+                            <td>
+                                <code>{{ record.bucket_name }}</code>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">{{ record.region }}</span>
+                            </td>
+                            <td>
+                                {% if record.creation_status == 'success' %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check"></i> Success
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-times"></i> Failed
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if record.image_url %}
+                                    <a href="{{ record.image_url }}" target="_blank" class="btn btn-sm btn-outline-primary me-1">
+                                        <i class="fas fa-image"></i> Image
+                                    </a>
+                                {% endif %}
+                                {% if record.html_url %}
+                                    <a href="{{ record.html_url }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-code"></i> HTML
+                                    </a>
+                                {% endif %}
+                                {% if not record.image_url and not record.html_url %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if record.error_message %}
+                                    <span class="text-danger small" title="{{ record.error_message }}">
+                                        {{ record.error_message[:30] }}{% if record.error_message|length > 30 %}...{% endif %}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if record.creation_status == 'success' and record.bucket_name and not record.bucket_name.startswith('failed-') and record.bucket_name != 'unknown' and not record.bucket_name.startswith('unknown-') %}
+                                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                                            onclick="confirmDelete('{{ record.id }}', '{{ record.bucket_name }}', '{{ record.region }}', '{{ record.aws_key.id }}')"
+                                            title="Delete this bucket">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                {% elif record.bucket_name == 'unknown' or record.bucket_name.startswith('unknown-') %}
+                                    <span class="text-warning small" title="Cannot delete: Bucket name is unknown">
+                                        <i class="fas fa-exclamation-triangle"></i> Unknown
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center text-muted py-5">
+                <i class="fas fa-history fa-3x mb-3"></i>
+                <h5>No Team Bucket Creation History</h5>
+                <p>Your team members haven't created any buckets yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Team Statistics -->
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ history_records|selectattr("creation_status", "equalto", "success")|list|length }}</h4>
+                        <p class="mb-0">Team Successful Creations</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-danger text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ history_records|selectattr("creation_status", "equalto", "failed")|list|length }}</h4>
+                        <p class="mb-0">Team Failed Attempts</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-times-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ history_records|map(attribute='user')|map(attribute='username')|unique|list|length }}</h4>
+                        <p class="mb-0">Active Team Members</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-user-friends fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="fas fa-exclamation-triangle text-warning"></i> Confirm Bucket Deletion
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <strong>Warning:</strong> This action cannot be undone!
+                </div>
+                <p>Are you sure you want to delete the bucket <strong id="bucketNameSpan"></strong>?</p>
+                <p class="text-muted">This will:</p>
+                <ul class="text-muted">
+                    <li>Delete all files in the bucket</li>
+                    <li>Permanently remove the bucket from AWS</li>
+                    <li>Free up space in your AWS key limits</li>
+                    <li>Make the URLs inaccessible</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Delete Bucket
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(historyId, bucketName, region, awsKeyId) {
+    document.getElementById('bucketNameSpan').textContent = bucketName;
+    document.getElementById('deleteForm').action = `/team-leader/delete-bucket/${historyId}`;
+    
+    // Show the modal
+    var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    deleteModal.show();
+}
+</script>
+{% endblock %}

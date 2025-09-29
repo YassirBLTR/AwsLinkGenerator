@@ -71,6 +71,9 @@
                             </td>
                             <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
                             <td>
+                                <button class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#editUserModal{{ user.id }}">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
                                 {% if not user.is_admin or user.id != current_user.id %}
                                     <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete('{{ user.username }}', '{{ user.id }}')">
                                         <i class="fas fa-trash"></i>
@@ -78,6 +81,59 @@
                                 {% endif %}
                             </td>
                         </tr>
+
+                        <!-- Edit User Modal for each user -->
+                        <div class="modal fade" id="editUserModal{{ user.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"><i class="fas fa-user-edit"></i> Edit User: {{ user.username }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form method="post" action="/admin/users/{{ user.id }}/edit">
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label for="edit_username{{ user.id }}" class="form-label">Username</label>
+                                                <input type="text" class="form-control" id="edit_username{{ user.id }}" name="username" value="{{ user.username }}" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="edit_password{{ user.id }}" class="form-label">Password</label>
+                                                <input type="password" class="form-control" id="edit_password{{ user.id }}" name="password" placeholder="Leave blank to keep current password">
+                                                <small class="form-text text-muted">Only enter a password if you want to change it.</small>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">User Role</label>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" id="edit_role_user{{ user.id }}" name="user_role" value="user" {% if not user.is_admin and not user.is_team_leader %}checked{% endif %}>
+                                                    <label class="form-check-label" for="edit_role_user{{ user.id }}">
+                                                        <i class="fas fa-user text-info"></i> Regular User
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" id="edit_role_team_leader{{ user.id }}" name="user_role" value="team_leader" {% if user.is_team_leader %}checked{% endif %}>
+                                                    <label class="form-check-label" for="edit_role_team_leader{{ user.id }}">
+                                                        <i class="fas fa-user-tie text-success"></i> Team Leader
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" id="edit_role_admin{{ user.id }}" name="user_role" value="admin" {% if user.is_admin %}checked{% endif %}>
+                                                    <label class="form-check-label" for="edit_role_admin{{ user.id }}">
+                                                        <i class="fas fa-crown text-warning"></i> Admin User
+                                                    </label>
+                                                </div>
+                                                <small class="form-text text-muted">Choose the appropriate role for this user.</small>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-save"></i> Save Changes
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                         {% endfor %}
                     </tbody>
                 </table>

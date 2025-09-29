@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}My Bucket History - AWS S3 Manager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="fas fa-history"></i> My Bucket Creation History</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <span class="badge bg-info fs-6">{{ history_records|length }} My Records</span>
+        </div>
+    </div>
+</div>
+
+<!-- User Info -->
+<div class="alert alert-primary mb-4">
+    <i class="fas fa-user"></i>
+    <strong>User:</strong> {{ current_user.username }}
+    {% if current_user.team %}
+        <span class="ms-3">
+            <i class="fas fa-users"></i>
+            <strong>Team:</strong> {{ current_user.team.name }}
+        </span>
+    {% endif %}
+</div>
+
+<!-- History Table -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0"><i class="fas fa-list"></i> My Bucket Creation Activity</h5>
+    </div>
+    <div class="card-body">
+        {% if history_records %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date/Time</th>
+                            <th>AWS Key Used</th>
+                            <th>Bucket Name</th>
+                            <th>Region</th>
+                            <th>Status</th>
+                            <th>Generated URLs</th>
+                            <th>Error Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in history_records %}
+                        <tr>
+                            <td>
+                                <small class="text-muted">{{ record.created_at.strftime('%Y-%m-%d') }}</small><br>
+                                <strong>{{ record.created_at.strftime('%H:%M:%S') }}</strong>
+                            </td>
+                            <td>
+                                <i class="fas fa-key text-muted me-1"></i>
+                                <strong>{{ record.aws_key.name }}</strong>
+                                <br><small class="text-muted">{{ record.aws_key.access_key[:10] }}...</small>
+                            </td>
+                            <td>
+                                <code>{{ record.bucket_name }}</code>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">{{ record.region }}</span>
+                            </td>
+                            <td>
+                                {% if record.creation_status == 'success' %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check"></i> Success
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-times"></i> Failed
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if record.image_url %}
+                                    <a href="{{ record.image_url }}" target="_blank" class="btn btn-sm btn-outline-primary me-1 mb-1">
+                                        <i class="fas fa-image"></i> View Image
+                                    </a>
+                                {% endif %}
+                                {% if record.html_url %}
+                                    <a href="{{ record.html_url }}" target="_blank" class="btn btn-sm btn-outline-info mb-1">
+                                        <i class="fas fa-code"></i> View HTML
+                                    </a>
+                                {% endif %}
+                                {% if not record.image_url and not record.html_url %}
+                                    <span class="text-muted">No URLs generated</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if record.error_message %}
+                                    <div class="text-danger small">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        <span title="{{ record.error_message }}">
+                                            {{ record.error_message[:50] }}{% if record.error_message|length > 50 %}...{% endif %}
+                                        </span>
+                                    </div>
+                                {% else %}
+                                    <span class="text-success small">
+                                        <i class="fas fa-check"></i> No errors
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center text-muted py-5">
+                <i class="fas fa-history fa-3x mb-3"></i>
+                <h5>No Bucket Creation History</h5>
+                <p>You haven't created any buckets yet. <a href="/user/create-buckets" class="btn btn-primary btn-sm">Create Your First Bucket</a></p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Personal Statistics -->
+{% if history_records %}
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ history_records|selectattr("creation_status", "equalto", "success")|list|length }}</h4>
+                        <p class="mb-0">Successful Buckets</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ history_records|selectattr("creation_status", "equalto", "failed")|list|length }}</h4>
+                        <p class="mb-0">Failed Attempts</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-times-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ history_records|map(attribute='aws_key')|map(attribute='name')|unique|list|length }}</h4>
+                        <p class="mb-0">Keys Used</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-key fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ history_records|map(attribute='region')|unique|list|length }}</h4>
+                        <p class="mb-0">Regions Used</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-globe fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
