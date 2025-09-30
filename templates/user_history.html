@@ -85,8 +85,8 @@
                                     </a>
                                 {% endif %}
                                 {% if record.html_url %}
-                                    <span class="btn btn-sm btn-outline-info mb-1">
-                                        <i class="fas fa-code"></i> {{ record.html_url }}
+                                    <span class="text-muted">
+                                        {{ record.html_url }}
                                     </span>
                                 {% endif %}
                                 {% if not record.image_url and not record.html_url %}
