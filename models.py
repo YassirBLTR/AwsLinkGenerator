@@ -84,15 +84,19 @@ class BucketHistory(Base):
     __tablename__ = "bucket_history"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    aws_key_id = Column(Integer, ForeignKey('aws_keys.id'), nullable=False)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='SET NULL'), nullable=True)
+    aws_key_id = Column(Integer, ForeignKey('aws_keys.id', ondelete='SET NULL'), nullable=True)
     bucket_name = Column(String, nullable=False)
     region = Column(String, nullable=False)
     image_url = Column(String, nullable=True)
     html_url = Column(String, nullable=True)
-    creation_status = Column(String, nullable=False)  # success, failed
+    creation_status = Column(String, nullable=False)  # success, failed, deleted
     error_message = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Store original user/key names for history preservation
+    user_name = Column(String, nullable=True)  # Store username when user is deleted
+    aws_key_name = Column(String, nullable=True)  # Store key name when key is deleted
     
     # Relationships
     user = relationship("User", back_populates="bucket_history")

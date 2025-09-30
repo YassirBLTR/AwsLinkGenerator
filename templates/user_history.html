@@ -53,8 +53,13 @@
                             </td>
                             <td>
                                 <i class="fas fa-key text-muted me-1"></i>
-                                <strong>{{ record.aws_key.name }}</strong>
-                                <br><small class="text-muted">{{ record.aws_key.access_key[:10] }}...</small>
+                                {% if record.aws_key %}
+                                    <strong>{{ record.aws_key.name }}</strong>
+                                    <br><small class="text-muted">{{ record.aws_key.access_key[:10] }}...</small>
+                                {% else %}
+                                    <span class="text-muted">{{ record.aws_key_name or 'Unknown Key' }}</span>
+                                    <br><small class="text-warning"><i class="fas fa-exclamation-triangle"></i> Key Deleted</small>
+                                {% endif %}
                             </td>
                             <td>
                                 <code>{{ record.bucket_name }}</code>
@@ -80,9 +85,9 @@
                                     </a>
                                 {% endif %}
                                 {% if record.html_url %}
-                                    <a href="{{ record.html_url }}" target="_blank" class="btn btn-sm btn-outline-info mb-1">
-                                        <i class="fas fa-code"></i> View HTML
-                                    </a>
+                                    <span class="btn btn-sm btn-outline-info mb-1">
+                                        <i class="fas fa-code"></i> {{ record.html_url }}
+                                    </span>
                                 {% endif %}
                                 {% if not record.image_url and not record.html_url %}
                                     <span class="text-muted">No URLs generated</span>

@@ -2,5 +2,13 @@
   {
     "type": "sqlite",
     "path": "c:\\Apps\\AwsLinkGenerator\\aws_manager.db"
+  },
+  {
+    "type": "sqlite",
+    "path": "c:\\Users\\ACER\\AppData\\Local\\Temp\\BvSshSftp-EM8DD0AQ\\BDCU0HYA\\6VMDAG90\\aws_manager.db"
+  },
+  {
+    "type": "sqlite",
+    "path": "c:\\Users\\ACER\\AppData\\Local\\Temp\\BvSshSftp-EM8DD0AQ\\BDCU0HYA\\XE555JUG\\aws_manager.db"
   }
 ]

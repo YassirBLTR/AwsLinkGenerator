@@ -864,7 +864,9 @@ async def create_buckets(
                     image_url=image_url,
                     html_url=html_url,
                     creation_status="success",
-                    error_message=None
+                    error_message=None,
+                    user_name=current_user.username,  # Store username for history preservation
+                    aws_key_name=aws_key.name  # Store key name for history preservation
                 )
                 db.add(history_record)
             
@@ -879,7 +881,9 @@ async def create_buckets(
                         image_url=None,
                         html_url=None,
                         creation_status="failed",
-                        error_message=error
+                        error_message=error,
+                        user_name=current_user.username,  # Store username for history preservation
+                        aws_key_name=aws_key.name  # Store key name for history preservation
                     )
                     db.add(history_record)
         

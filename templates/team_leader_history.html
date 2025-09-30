@@ -116,15 +116,25 @@
                             </td>
                             <td>
                                 <i class="fas fa-user text-muted me-1"></i>
-                                {{ record.user.username }}
-                                {% if record.user.id == current_user.id %}
-                                    <span class="badge bg-warning text-dark ms-1">You</span>
+                                {% if record.user %}
+                                    {{ record.user.username }}
+                                    {% if record.user.id == current_user.id %}
+                                        <span class="badge bg-warning text-dark ms-1">You</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">{{ record.user_name or 'Unknown User' }}</span>
+                                    <br><small class="text-warning"><i class="fas fa-exclamation-triangle"></i> User Deleted</small>
                                 {% endif %}
                             </td>
                             <td>
                                 <i class="fas fa-key text-muted me-1"></i>
-                                {{ record.aws_key.name }}
-                                <br><small class="text-muted">{{ record.aws_key.access_key[:10] }}...</small>
+                                {% if record.aws_key %}
+                                    {{ record.aws_key.name }}
+                                    <br><small class="text-muted">{{ record.aws_key.access_key[:10] }}...</small>
+                                {% else %}
+                                    <span class="text-muted">{{ record.aws_key_name or 'Unknown Key' }}</span>
+                                    <br><small class="text-warning"><i class="fas fa-exclamation-triangle"></i> Key Deleted</small>
+                                {% endif %}
                             </td>
                             <td>
                                 <code>{{ record.bucket_name }}</code>
