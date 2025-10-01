@@ -175,7 +175,7 @@ class AWSService:
             
         return stats
 
-    def create_buckets_for_user(self, user_keys: List[AWSKey], region: str, num_buckets: int, image_file: Optional[UploadFile] = None, image_content: Optional[bytes] = None) -> Dict[str, Any]:
+    def create_buckets_for_user(self, user_keys: List[AWSKey], region: str, num_buckets: int, image_file: Optional[UploadFile] = None, image_content: Optional[bytes] = None, custom_bucket_name: Optional[str] = None) -> Dict[str, Any]:
         """Create buckets for a user using their assigned AWS keys"""
         results = {
             "region": region,
@@ -195,7 +195,7 @@ class AWSService:
             print(f"DEBUG: Successfully prepared image data: {len(image_bytes)} bytes, ext: {file_ext}, content_type: {content_type}")
 
         for aws_key in user_keys:
-            key_result = self._process_key_buckets(aws_key, region, num_buckets, image_bytes, file_ext, content_type)
+            key_result = self._process_key_buckets(aws_key, region, num_buckets, image_bytes, file_ext, content_type, custom_bucket_name)
             results["keys_results"].append(key_result)
             results["total_buckets_created"] += key_result["buckets_created"]
             results["total_urls_generated"] += len(key_result["urls"])
@@ -203,7 +203,7 @@ class AWSService:
         return results
 
     def _process_key_buckets(self, aws_key: AWSKey, region: str, num_buckets: int, 
-                           image_bytes: Optional[bytes], file_ext: str, content_type: str) -> Dict[str, Any]:
+                           image_bytes: Optional[bytes], file_ext: str, content_type: str, custom_bucket_name: Optional[str] = None) -> Dict[str, Any]:
         """Process bucket creation for a single AWS key"""
         key_result = {
             "key_name": aws_key.name,
@@ -230,7 +230,17 @@ class AWSService:
             # Create buckets
             for i in range(num_buckets):
                 try:
-                    bucket_name = self._generate_random_name(prefix='bucket')
+                    if custom_bucket_name:
+                        # Use custom bucket name with suffix for multiple buckets
+                        if num_buckets == 1:
+                            bucket_name = custom_bucket_name
+                        else:
+                            # Add suffix for multiple buckets to ensure uniqueness
+                            bucket_name = f"{custom_bucket_name}-{i+1:02d}"
+                    else:
+                        # Generate random bucket name
+                        bucket_name = self._generate_random_name(prefix='bucket')
+                    
                     # Create and configure bucket
                     self._create_and_configure_bucket(s3, bucket_name, region)
                     key_result["buckets_created"] += 1

@@ -92,6 +92,36 @@
                         </div>
 
                         <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-tag"></i> Bucket Naming
+                            </label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="bucket_naming" id="random_naming" value="random" checked>
+                                <label class="form-check-label" for="random_naming">
+                                    Generate random bucket names (recommended)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="bucket_naming" id="custom_naming" value="custom">
+                                <label class="form-check-label" for="custom_naming">
+                                    Use custom bucket name
+                                </label>
+                            </div>
+                            <div class="mt-2" id="custom_bucket_name_group" style="display: none;">
+                                <input type="text" class="form-control" id="custom_bucket_name" name="custom_bucket_name" placeholder="Enter bucket name (e.g., my-bucket-name)">
+                                <div class="form-text">
+                                    <small>
+                                        <strong>AWS Bucket Naming Rules:</strong><br>
+                                        • 3-63 characters long<br>
+                                        • Only lowercase letters, numbers, and hyphens<br>
+                                        • Must start and end with letter or number<br>
+                                        • Must be globally unique across all AWS accounts
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
                             <label for="num_buckets" class="form-label">
                                 <i class="fas fa-hashtag"></i> Number of Buckets per AWS Key
                             </label>
@@ -99,6 +129,7 @@
                             <div class="form-text">
                                 Each of your {{ keys|length }} AWS key(s) will create this many buckets. 
                                 Total buckets: <span id="totalBuckets">{{ keys|length }}</span>
+                                <span id="custom_naming_note" style="display: none;"><br><strong>Note:</strong> When using custom names, a unique suffix will be added for multiple buckets.</span>
                             </div>
                         </div>
 
@@ -154,7 +185,7 @@
                 <div class="card-body">
                     <div class="small">
                         <ol class="ps-3">
-                            <li class="mb-2">Random bucket names will be generated</li>
+                            <li class="mb-2" id="bucket_naming_step">Random bucket names will be generated</li>
                             <li class="mb-2">Buckets will be created in your selected region</li>
                             <li class="mb-2">Public access will be configured</li>
                             <li class="mb-2">Your uploaded image will be uploaded</li>
@@ -189,6 +220,33 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const numBucketsInput = document.getElementById('num_buckets');
+    const randomNaming = document.getElementById('random_naming');
+    const customNaming = document.getElementById('custom_naming');
+    const customBucketNameGroup = document.getElementById('custom_bucket_name_group');
+    const customBucketName = document.getElementById('custom_bucket_name');
+    const customNamingNote = document.getElementById('custom_naming_note');
+    
+    // Handle bucket naming radio buttons
+    if (randomNaming && customNaming && customBucketNameGroup) {
+        randomNaming.addEventListener('change', function() {
+            if (this.checked) {
+                customBucketNameGroup.style.display = 'none';
+                customBucketName.required = false;
+                if (customNamingNote) customNamingNote.style.display = 'none';
+                updateBucketNamingStep('Random bucket names will be generated');
+            }
+        });
+        
+        customNaming.addEventListener('change', function() {
+            if (this.checked) {
+                customBucketNameGroup.style.display = 'block';
+                customBucketName.required = true;
+                if (customNamingNote) customNamingNote.style.display = 'inline';
+                updateBucketNamingStep('Your custom bucket name will be used');
+            }
+        });
+    }
+    
     if (numBucketsInput) {
         numBucketsInput.addEventListener('input', function() {
             const numBuckets = parseInt(this.value) || 0;
@@ -325,6 +383,13 @@ function showLoadingSpinner() {
     const form = document.querySelector('form');
     if (form) {
         form.appendChild(progressDiv);
+    }
+}
+
+function updateBucketNamingStep(text) {
+    const bucketNamingStep = document.getElementById('bucket_naming_step');
+    if (bucketNamingStep) {
+        bucketNamingStep.textContent = text;
     }
 }
 </script>

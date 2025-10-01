@@ -10,5 +10,9 @@
   {
     "type": "sqlite",
     "path": "c:\\Users\\ACER\\AppData\\Local\\Temp\\BvSshSftp-EM8DD0AQ\\BDCU0HYA\\XE555JUG\\aws_manager.db"
+  },
+  {
+    "type": "sqlite",
+    "path": "c:\\Users\\ACER\\AppData\\Local\\Temp\\BvSshSftp-DBFJL8V9\\FBWLPWMF\\C6Y8C16R\\aws_manager.db"
   }
 ]

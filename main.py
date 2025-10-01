@@ -734,12 +734,15 @@ async def create_buckets(
     request: Request,
     region: str = Form(...),
     num_buckets: int = Form(...),
+    bucket_naming: str = Form("random"),
+    custom_bucket_name: str = Form(""),
     image: UploadFile = File(None),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     print(f"DEBUG MAIN: Starting bucket creation for user {current_user.username}")
     print(f"DEBUG MAIN: Region: {region}, Num buckets: {num_buckets}")
+    print(f"DEBUG MAIN: Bucket naming: {bucket_naming}, Custom name: {custom_bucket_name}")
     print(f"DEBUG MAIN: Image filename: {image.filename if image else 'None'}")
     print(f"DEBUG MAIN: Image content type: {image.content_type if image else 'None'}")
     
@@ -751,6 +754,115 @@ async def create_buckets(
     invalid_keys = [k for k in user_keys if k.status == 'invalid']
     
     print(f"DEBUG MAIN: Found {len(user_keys)} total keys, {len(valid_keys)} valid keys")
+    
+    # Validate custom bucket name if provided
+    if bucket_naming == "custom":
+        if not custom_bucket_name.strip():
+            regions = [
+                'us-east-1', 'us-east-2', 'us-west-1', 'us-west-2',
+                'ca-central-1', 'ca-west-1',
+                'eu-west-1', 'eu-west-2', 'eu-west-3',
+                'eu-central-1', 'eu-central-2',
+                'eu-north-1', 'eu-south-1', 'eu-south-2',
+                'ap-south-1', 'ap-south-2',
+                'ap-southeast-1', 'ap-southeast-2', 'ap-southeast-3', 'ap-southeast-4',
+                'ap-northeast-1', 'ap-northeast-2', 'ap-northeast-3',
+                'ap-east-1',
+                'sa-east-1',
+                'me-south-1', 'me-central-1',
+                'il-central-1',
+                'af-south-1'
+            ]
+            return templates.TemplateResponse("create_buckets.html", {
+                "request": request,
+                "current_user": current_user,
+                "keys": valid_keys,
+                "invalid_keys": invalid_keys,
+                "regions": regions,
+                "error": "Custom bucket name is required when using custom naming"
+            })
+        
+        # Validate AWS bucket naming rules
+        bucket_name = custom_bucket_name.strip().lower()
+        import re
+        
+        # AWS bucket naming validation
+        if len(bucket_name) < 3 or len(bucket_name) > 63:
+            regions = [
+                'us-east-1', 'us-east-2', 'us-west-1', 'us-west-2',
+                'ca-central-1', 'ca-west-1',
+                'eu-west-1', 'eu-west-2', 'eu-west-3',
+                'eu-central-1', 'eu-central-2',
+                'eu-north-1', 'eu-south-1', 'eu-south-2',
+                'ap-south-1', 'ap-south-2',
+                'ap-southeast-1', 'ap-southeast-2', 'ap-southeast-3', 'ap-southeast-4',
+                'ap-northeast-1', 'ap-northeast-2', 'ap-northeast-3',
+                'ap-east-1',
+                'sa-east-1',
+                'me-south-1', 'me-central-1',
+                'il-central-1',
+                'af-south-1'
+            ]
+            return templates.TemplateResponse("create_buckets.html", {
+                "request": request,
+                "current_user": current_user,
+                "keys": valid_keys,
+                "invalid_keys": invalid_keys,
+                "regions": regions,
+                "error": "Bucket name must be between 3 and 63 characters long"
+            })
+        
+        # Check for valid characters and format
+        if not re.match(r'^[a-z0-9][a-z0-9\-]*[a-z0-9]$', bucket_name) and len(bucket_name) > 1:
+            regions = [
+                'us-east-1', 'us-east-2', 'us-west-1', 'us-west-2',
+                'ca-central-1', 'ca-west-1',
+                'eu-west-1', 'eu-west-2', 'eu-west-3',
+                'eu-central-1', 'eu-central-2',
+                'eu-north-1', 'eu-south-1', 'eu-south-2',
+                'ap-south-1', 'ap-south-2',
+                'ap-southeast-1', 'ap-southeast-2', 'ap-southeast-3', 'ap-southeast-4',
+                'ap-northeast-1', 'ap-northeast-2', 'ap-northeast-3',
+                'ap-east-1',
+                'sa-east-1',
+                'me-south-1', 'me-central-1',
+                'il-central-1',
+                'af-south-1'
+            ]
+            return templates.TemplateResponse("create_buckets.html", {
+                "request": request,
+                "current_user": current_user,
+                "keys": valid_keys,
+                "invalid_keys": invalid_keys,
+                "regions": regions,
+                "error": "Bucket name can only contain lowercase letters, numbers, and hyphens. Must start and end with a letter or number."
+            })
+        
+        # Check for consecutive hyphens or periods
+        if '--' in bucket_name or '..' in bucket_name or '.-' in bucket_name or '-.' in bucket_name:
+            regions = [
+                'us-east-1', 'us-east-2', 'us-west-1', 'us-west-2',
+                'ca-central-1', 'ca-west-1',
+                'eu-west-1', 'eu-west-2', 'eu-west-3',
+                'eu-central-1', 'eu-central-2',
+                'eu-north-1', 'eu-south-1', 'eu-south-2',
+                'ap-south-1', 'ap-south-2',
+                'ap-southeast-1', 'ap-southeast-2', 'ap-southeast-3', 'ap-southeast-4',
+                'ap-northeast-1', 'ap-northeast-2', 'ap-northeast-3',
+                'ap-east-1',
+                'sa-east-1',
+                'me-south-1', 'me-central-1',
+                'il-central-1',
+                'af-south-1'
+            ]
+            return templates.TemplateResponse("create_buckets.html", {
+                "request": request,
+                "current_user": current_user,
+                "keys": valid_keys,
+                "invalid_keys": invalid_keys,
+                "regions": regions,
+                "error": "Bucket name cannot contain consecutive hyphens or periods"
+            })
     
     if not valid_keys:
         return templates.TemplateResponse("create_buckets.html", {
@@ -796,7 +908,8 @@ async def create_buckets(
     aws_service = AWSService()
     
     # Create buckets using the regular service
-    results = aws_service.create_buckets_for_user(valid_keys, region, num_buckets, image_file=image, image_content=image_content)
+    custom_name = custom_bucket_name.strip().lower() if bucket_naming == "custom" else None
+    results = aws_service.create_buckets_for_user(valid_keys, region, num_buckets, image_file=image, image_content=image_content, custom_bucket_name=custom_name)
     
     print(f"DEBUG MAIN: AWS service returned: {results}")
     print(f"DEBUG MAIN: Total buckets created: {results.get('total_buckets_created', 0)}")
